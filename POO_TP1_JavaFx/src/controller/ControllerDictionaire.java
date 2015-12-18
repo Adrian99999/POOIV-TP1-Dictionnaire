@@ -1,15 +1,16 @@
 package controller;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -34,6 +35,29 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     private TextField textFieldAffichageMot;
+    @FXML
+    private Button buttonAjouter;
+
+    @FXML
+    private Button buttonEffacer;
+
+    @FXML
+    private Button buttonModifier;
+
+    @FXML
+    void ajouterMot(ActionEvent event) {
+
+    }
+
+    @FXML
+    void effacerMot(ActionEvent event) {
+
+    }
+
+    @FXML
+    void modifierMot(ActionEvent event) {
+
+    }
     private ObservableList<String> observableList = FXCollections.observableArrayList();
     private FabriqueMotSingleton singleton = FabriqueMotSingleton.getInstance();
     
