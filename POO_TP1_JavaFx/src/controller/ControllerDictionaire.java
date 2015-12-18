@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -35,6 +36,7 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     private TextField textFieldAffichageMot;
+    
     @FXML
     private Button buttonAjouter;
 
@@ -43,6 +45,15 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     private Button buttonModifier;
+    
+    @FXML
+    private TextField champRecherche;
+
+    @FXML
+    private CheckBox dansLeMotChBox;
+
+    @FXML
+    private Button buttonAnnuler;
 
     @FXML
     void ajouterMot(ActionEvent event) {
@@ -58,6 +69,47 @@ public class ControllerDictionaire implements Initializable{
     void modifierMot(ActionEvent event) {
 
     }
+
+    @FXML
+    void annulerModification(ActionEvent event) {
+
+    }
+
+    @FXML
+    void gererCliqueDefinition(ActionEvent event) {
+
+    }
+
+    @FXML
+    void gererCliqueSurMot(ActionEvent event) {
+
+    }
+
+    @FXML
+    void gererExpressionDansMotChBox(ActionEvent event) {
+
+    }
+
+    @FXML
+    void gererFiltreChBox(ActionEvent event) {
+
+    }
+
+    @FXML
+    void rechercherAChaqueLettre(ActionEvent event) {
+
+    }
+
+    @FXML
+    void rechercherLeMotComplet(ActionEvent event) {
+
+    }
+
+    @FXML
+    void supprimerMot(ActionEvent event) {
+
+    }
+    
     private ObservableList<String> observableList = FXCollections.observableArrayList();
     private FabriqueMotSingleton singleton = FabriqueMotSingleton.getInstance();
     
