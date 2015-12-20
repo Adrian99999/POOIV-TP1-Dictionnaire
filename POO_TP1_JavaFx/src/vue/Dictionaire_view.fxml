@@ -23,7 +23,7 @@
                   </Label>
                   <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" />
                   <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" text="Expression dans le mot" />
-                  <CheckBox mnemonicParsing="false" onAction="#gererFiltreChBox" text="Filtrer" />
+                  <CheckBox fx:id="filtreChBox" mnemonicParsing="false" onAction="#gererFiltreChBox" text="Filtrer" />
                   <ListView fx:id="listViewMots" prefHeight="239.0" prefWidth="205.0" />
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
