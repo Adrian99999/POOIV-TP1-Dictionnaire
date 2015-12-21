@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 public class Dictionnaire extends TreeMap<String, Mot> {
 
 	public List<Mot> rechercher(String mot) {
-		return rechercher(new OptionsDeRecherche());
+		return rechercher(new FiltreDeRecherche());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Mot> rechercher(OptionsDeRecherche parametresDeRecherche) {
+	public List<Mot> rechercher(FiltreDeRecherche parametresDeRecherche) {
 		
 		List<Object> liste = this.values()
 								.stream()

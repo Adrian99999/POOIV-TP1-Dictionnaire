@@ -2,7 +2,7 @@ package model;
 
 import java.time.LocalDate;
 
-public class Mot 
+public class Mot
 {
 	private String mot;
 	private String definition;
@@ -55,6 +55,9 @@ public class Mot
 	public void setDateModificationMot(LocalDate dateModificationMot) {
 		this.dateModificationMot = dateModificationMot;
 	}
-	
-	
+
+	public boolean hasImage() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
