@@ -6,43 +6,50 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class GestionFichier {
+public class GestionFichier implements Runnable {
 	/**
 	 * La liste des mots du fichier
 	 */
-	private List<String> listeMots = new ArrayList<>();
-	//public static void main(String [] args){
+	private BlockingQueue<String> listeMots = new LinkedBlockingQueue<String>(200);
+	
 	public GestionFichier() {
-		
+
+	}
+	
+	public BlockingQueue<String> getListeMots()
+	{
+		return listeMots;
+	}
+
+	@Override
+	public void run() {
 		
 		BufferedReader br = null;
+		
 		try {
 			br  = new BufferedReader(
 					new InputStreamReader(
 							this.getClass()
 							.getResourceAsStream("liste_de_mots.txt")));
-			String line = null;
 			
+			String line = null;
 			while((line = br.readLine()) != null)
 			{
-				System.out.println(line);
-		       listeMots.add(line);
+				listeMots.put(line);
+				System.out.println(line + " lecture");
+
 			}
-		} catch ( IOException e) {
-			// TODO Auto-generated catch block
+			listeMots.put("_fin_");
+			br.close();
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
-			try {
-				br.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
+		
 	}
-	public List<String> getListeMots()
-	{
-		return listeMots;
-	}
+
+		
+	
 }
