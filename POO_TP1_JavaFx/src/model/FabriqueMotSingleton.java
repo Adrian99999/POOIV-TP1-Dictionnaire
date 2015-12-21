@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
 import java.text.Collator;
 import java.text.Normalizer;
 /**
@@ -17,17 +16,17 @@ import java.text.Normalizer;
  * @author Adrian Pinzaru
  *
  */
-public class FabriqueMotSingleton implements Runnable
+public class FabriqueMotSingleton 
 {
 	private static FabriqueMotSingleton instance= null;
-	private Dictionnaire dictionnaire;
-	private BlockingQueue<String> queueMot;
+	private Map<String, Mot> dictionaire = new HashMap<>();
+	private TreeSet<String> treeSetDictionaire = new TreeSet<String>(IGNORE_CASE);
 	
 	private Properties properties = new Properties();
 	/**
 	 * Constructeur de la classe, execut la lecture du fichier proprietes.xml et cree le dictionaire;
 	 */
-	private FabriqueMotSingleton()
+	protected FabriqueMotSingleton()
 	{
 		lireProprietes();
 		creerDictionaire();
@@ -49,19 +48,17 @@ public class FabriqueMotSingleton implements Runnable
 	 */
 	private void creerDictionaire()
 	{
-		dictionnaire = new Dictionnaire();
-		
 		GestionFichier fichier = new GestionFichier();
-	
-		queueMot = fichier.getListeMots();
-		
-		new Thread(fichier).start();
-		new Thread(this).start();
+		for (int i=0; i<fichier.getListeMots().size(); i++)
+		{
+			//String dateCreationMot = new SimpleDateFormat("yyyy/MM/dd HH-mm-ss").format(Calendar.getInstance().getTime());
 
+			Mot mot = new Mot(fichier.getListeMots().get(i),"définition", "nom fichier", LocalDate.now(), LocalDate.now() );
+			
+			dictionaire.put(fichier.getListeMots().get(i), mot);
+			treeSetDictionaire.add(fichier.getListeMots().get(i));
+		}
 	}
-	
-	
-	
 	/**
 	 * Méthode qui lit le fichier de configuration
 	 */
@@ -90,21 +87,27 @@ public class FabriqueMotSingleton implements Runnable
 	 * Méthode qui retourne la liste des mots dans un TreeSet
 	 * @return TreeSet
 	 */
-	public Dictionnaire getDictionnaire() {
-		return dictionnaire;
+	public TreeSet<String> getTreeSetDictionaire() {
+		return treeSetDictionaire;
 	}
-	@Override
-	public void run() {
-		String libelleMot;
-		try {
-			
-			while (!(libelleMot = queueMot.take()).equals("_fin_")) {
-				Mot mot = new Mot(libelleMot, "définition", "nom fichier", LocalDate.now(), LocalDate.now() );
-				dictionnaire.put(libelleMot, mot);
-				System.out.println(libelleMot + " insert");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+	/**
+	 * 
+	 * @return Map
+	 */
+	public Map<String, Mot> getDictionaire() {
+		return dictionaire;
+	}
+	
+	static final Comparator<String> IGNORE_CASE = new Comparator<String>(){
+
+		@Override
+		public int compare(String o1, String o2) {
+			// TODO Auto-generated method stub
+			//String test1 = Normalizer.normalize(o1, Normalizer.Form.NFD);
+			//String test2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
+			Collator fr_FRCollator = Collator.getInstance(new Locale("fr","FR"));
+			return fr_FRCollator.compare(o1, o2);
 		}
-	}
+		
+	};
 }
