@@ -19,8 +19,7 @@ import java.text.Normalizer;
 public class FabriqueMotSingleton 
 {
 	private static FabriqueMotSingleton instance= null;
-	private Map<String, Mot> dictionaire = new HashMap<>();
-	private TreeSet<String> treeSetDictionaire = new TreeSet<String>(IGNORE_CASE);
+	private Dictionnaire dictionnaire;
 	
 	private Properties properties = new Properties();
 	/**
@@ -48,6 +47,7 @@ public class FabriqueMotSingleton
 	 */
 	private void creerDictionaire()
 	{
+		dictionnaire = new Dictionnaire();
 		GestionFichier fichier = new GestionFichier();
 		for (int i=0; i<fichier.getListeMots().size(); i++)
 		{
@@ -55,8 +55,7 @@ public class FabriqueMotSingleton
 
 			Mot mot = new Mot(fichier.getListeMots().get(i),"définition", "nom fichier", LocalDate.now(), LocalDate.now() );
 			
-			dictionaire.put(fichier.getListeMots().get(i), mot);
-			treeSetDictionaire.add(fichier.getListeMots().get(i));
+			dictionnaire.put(fichier.getListeMots().get(i), mot);
 		}
 	}
 	/**
@@ -83,31 +82,9 @@ public class FabriqueMotSingleton
 			}
 		}
 	}
-	/**
-	 * Méthode qui retourne la liste des mots dans un TreeSet
-	 * @return TreeSet
-	 */
-	public TreeSet<String> getTreeSetDictionaire() {
-		return treeSetDictionaire;
-	}
-	/**
-	 * 
-	 * @return Map
-	 */
-	public Map<String, Mot> getDictionaire() {
-		return dictionaire;
-	}
-	
-	static final Comparator<String> IGNORE_CASE = new Comparator<String>(){
 
-		@Override
-		public int compare(String o1, String o2) {
-			// TODO Auto-generated method stub
-			//String test1 = Normalizer.normalize(o1, Normalizer.Form.NFD);
-			//String test2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
-			Collator fr_FRCollator = Collator.getInstance(new Locale("fr","FR"));
-			return fr_FRCollator.compare(o1, o2);
-		}
-		
-	};
+	public Dictionnaire getDictionnaire() {
+		return dictionnaire;
+	}
+
 }
