@@ -14,6 +14,8 @@ public class GestionFichier {
 	private List<String> listeMots = new ArrayList<>();
 	//public static void main(String [] args){
 	public GestionFichier() {
+		
+		
 		BufferedReader br = null;
 		try {
 			br  = new BufferedReader(

@@ -98,6 +98,11 @@ public class ControllerDictionaire implements Initializable{
     void gererExpressionDansMotChBox(ActionEvent event) {
 
     }
+    
+    @FXML
+    void fermerAppication(ActionEvent event) {
+    	
+    }
 
     @FXML
     void gererFiltreChBox(ActionEvent event) {

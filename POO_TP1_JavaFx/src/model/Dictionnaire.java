@@ -5,10 +5,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class Dictionnaire extends TreeMap<String, Mot> {
-
-	public List<Mot> rechercher(String mot) {
-		return rechercher(new FiltreDeRecherche());
-	}
 	
 	@SuppressWarnings("unchecked")
 	public List<Mot> rechercher(FiltreDeRecherche parametresDeRecherche) {
