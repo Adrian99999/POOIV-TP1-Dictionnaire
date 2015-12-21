@@ -21,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.Dictionnaire;
 import model.FabriqueMotSingleton;
 import model.Mot;
 
@@ -140,26 +141,8 @@ public class ControllerDictionaire implements Initializable{
 
     }
     
-    private ObservableList<String> observableList = FXCollections.observableArrayList();
-    private FabriqueMotSingleton singleton = FabriqueMotSingleton.getInstance();
-    
-    private void afficcherListViewDictionaire()
-    {
-//		for(Map.Entry<String,Mot> entree : singleton.getDictionaire().entrySet()){
-//			entree.getValue();
-//			observableList.add(entree.getKey());
-//			entree.getKey();
-//		}
-		
-		
-		for(String mot : singleton.getTreeSetDictionaire())
-		{
-			observableList.add(mot);
-		}
-		
-		listViewMots.setItems(observableList);
-		
-    }
+    private ObservableList<String> listeDesMotsAffiches = FXCollections.observableArrayList();
+    private Dictionnaire dictionnaire;
     
     private void afficherInfoMot(Mot mot)
     {
@@ -181,19 +164,31 @@ public class ControllerDictionaire implements Initializable{
     }
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		afficcherListViewDictionaire();
-		//ajouter le listener a la listView 
-		listViewMots.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+	    
+		lireLeDictionaireEtLAfficher();
+		
+		lierListeDesMotsEtAffichage();
 
+	}
+	
+	private void lireLeDictionaireEtLAfficher() {
+		FabriqueMotSingleton fabriqueDic = FabriqueMotSingleton.getInstance();
+	    dictionnaire = fabriqueDic.getDictionnaire();
+	    listeDesMotsAffiches.addAll(dictionnaire.keySet());
+	    listViewMots.setItems(listeDesMotsAffiches);
+	}
+	
+	private void lierListeDesMotsEtAffichage() {
+		listViewMots.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				System.out.println(newValue);
 				textFieldAffichageMot.setText(newValue);
-				afficherInfoMot(singleton.getDictionaire().get(newValue));
-				
+				afficherInfoMot(dictionnaire.get(newValue));
 			}
 		});
 	}
+	
 	private void desactiverLeFiltre() {
 		
 	}
