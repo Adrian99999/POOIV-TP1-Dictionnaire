@@ -1,31 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="319.0" prefWidth="477.0" styleClass="background-image" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
    <children>
-      <Label text="Filtre" />
-      <HBox prefHeight="100.0" prefWidth="200.0">
+      <Label styleClass="label-bright" text="Filtre">
+         <padding>
+            <Insets left="40.0" />
+         </padding></Label>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
             <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" text="Date" />
             <ComboBox fx:id="typeDateComBox" disable="true" prefWidth="150.0" />
             <ComboBox fx:id="typeFiltreDateComBox" disable="true" prefWidth="150.0" />
             <DatePicker fx:id="dateFiltrePicker" />
          </children>
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
       </HBox>
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
-            <CheckBox fx:id="imagePresenteChBox" mnemonicParsing="false" text="Image présente" />
+            <CheckBox fx:id="imagePresenteChBox" mnemonicParsing="false" styleClass="label-bright" text="Image présente" />
          </children>
+         <padding>
+            <Insets left="20.0" />
+         </padding>
       </HBox>
-      <HBox prefHeight="100.0" prefWidth="200.0">
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <Button fx:id="annulerBtn" mnemonicParsing="false" text="Annuler" />
-            <Button fx:id="appliquerBtn" mnemonicParsing="false" text="Appliquer" />
+            <Button fx:id="annulerBtn" mnemonicParsing="false" styleClass="lion-default" text="Annuler" />
+            <Button fx:id="appliquerBtn" mnemonicParsing="false" styleClass="lion-default" text="Appliquer" />
          </children>
+         <padding>
+            <Insets left="20.0" />
+         </padding>
       </HBox>
    </children>
 </VBox>

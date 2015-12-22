@@ -7,8 +7,8 @@ import java.util.Locale;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javafx.scene.Parent;
 
+@SuppressWarnings("serial")
 public class Dictionnaire extends TreeMap<String, Mot> {
 	
 
