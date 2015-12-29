@@ -30,6 +30,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -90,11 +91,6 @@ public class ControllerDictionaire implements Initializable{
     	System.out.println(buttonAjouter);
     }
 
-//    @FXML
-//    void effacerMot(ActionEvent event) {
-//
-//    }
-
     @FXML
     void modifierMot(ActionEvent event) {
     	//si le mot n'a pas été modiffié
@@ -128,7 +124,7 @@ public class ControllerDictionaire implements Initializable{
     
     @FXML
     void fermerAppication(ActionEvent event) {
-    	
+    	Platform.exit();
     }
 
     @FXML
@@ -153,13 +149,13 @@ public class ControllerDictionaire implements Initializable{
     }
 
     @FXML
-    void rechercherAChaqueLettre(ActionEvent event) {
+    void rechercherAChaqueLettre(KeyEvent event) {
 
     }
 
     @FXML
     void rechercherLeMotComplet(ActionEvent event) {
-
+    	
     }
 
     @FXML
@@ -237,6 +233,7 @@ public class ControllerDictionaire implements Initializable{
 	private void lierLesElements() {
 		listViewMots.setItems(listeDesMotsAffiches);
 		lierListeDesMotsEtAffichage();
+		buttonAjouter.disableProperty().bind(champRecherche.textProperty().isEmpty());
 		
 	}
 	
