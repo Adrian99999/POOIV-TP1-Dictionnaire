@@ -20,6 +20,8 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 		}
 	};
 	
+	int maxMotsDef = 0;
+	
 	public Dictionnaire() {
 		super(IGNORE_CASE);
 	}
@@ -32,6 +34,10 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 								.filter(parametresDeRecherche)
 								.collect(Collectors.toList());
 		return (List<Mot>) (Object) liste;
+	}
+
+	public void setMaxMotDef(String maxProperty) {
+		maxMotsDef = Integer.parseInt(maxProperty);
 	}
 	
 	

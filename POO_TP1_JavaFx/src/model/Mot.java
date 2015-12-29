@@ -9,20 +9,13 @@ public class Mot
 	private String nomFichier;
 	private LocalDate dateSaisieMot;
 	private LocalDate dateModificationMot;
-	/**
-	 * Constructeur de la classe
-	 * @param pMot
-	 * @param pDefinition
-	 * @param pNomfichier
-	 * @param pDateSaisieMot
-	 * @param pDateModificationMot
-	 */
-	public Mot(String pMot, String pDefinition, String pNomfichier, LocalDate pDateSaisieMot, LocalDate pDateModificationMot){
-		setMot(pMot);
-		setDefinition(pDefinition);
-		setNomFichier(pNomfichier);
-		setDateSaisieMot(pDateSaisieMot);
-		setDateModificationMot(pDateModificationMot);
+	
+	public Mot(String pMot) {
+		this.mot = pMot;
+		this.dateSaisieMot = LocalDate.now();
+		this.definition = "";
+		this.nomFichier = "";
+		this.dateModificationMot = null;
 	}
 	
 	public String getMot() {

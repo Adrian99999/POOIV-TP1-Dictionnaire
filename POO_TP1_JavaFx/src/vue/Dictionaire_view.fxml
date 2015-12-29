@@ -27,8 +27,8 @@
                   <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button defaultButton="true" mnemonicParsing="false" onAction="#ajouterMot" styleClass="lion-default" text="Ajouter" />
-                        <Button mnemonicParsing="false" onAction="#supprimerMot" styleClass="lion-default-size-10" text="Supprimer" />
+                        <Button fx:id="buttonAjouter" mnemonicParsing="false" onAction="#ajouterMot" text="Ajouter" />
+                        <Button fx:id="buttonEffacer" mnemonicParsing="false" onAction="#supprimerMot" text="Supprimer" />
                      </children>
                   </HBox>
                </children>
@@ -36,7 +36,7 @@
                   <Insets left="10.0" right="10.0" />
                </padding>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" styleClass="background-image">
+            <VBox fx:id="sectionDefinition" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <TextField fx:id="textFieldAffichageMot" onMouseClicked="#gererCliqueSurMot" opacity="0.85" />
                   <Label alignment="CENTER" styleClass="label-bright" text="Définition :" />
