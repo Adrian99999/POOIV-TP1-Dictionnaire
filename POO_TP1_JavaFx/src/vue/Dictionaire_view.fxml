@@ -7,14 +7,13 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane prefHeight="396.0" prefWidth="424.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
+<BorderPane prefHeight="500.0" prefWidth="620.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
    <center>
-      <SplitPane dividerPositions="0.36255924170616116" prefHeight="396.0" prefWidth="527.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.3851132686084142" prefHeight="396.0" prefWidth="527.0" BorderPane.alignment="CENTER">
         <items>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" styleClass="background-image">
                <children>
-                  <Label prefHeight="17.0" prefWidth="225.0" text="Recherche">
+                  <Label prefHeight="17.0" prefWidth="225.0" styleClass="label-bright" text="Recherche">
                      <font>
                         <Font name="System Italic" size="22.0" />
                      </font>
@@ -22,45 +21,60 @@
                         <Insets left="20.0" />
                      </padding>
                   </Label>
-                  <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" />
-                  <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" text="Expression dans le mot" />
-                  <CheckBox fx:id="filtreChBox" mnemonicParsing="false" onAction="#gererFiltreChBox" text="Filtrer" />
-                  <ListView fx:id="listViewMots" prefHeight="239.0" prefWidth="205.0" />
-                  <HBox prefHeight="100.0" prefWidth="200.0">
+                  <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" opacity="0.85" />
+                  <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" styleClass="label-bright" text="Expression dans le mot" />
+                  <CheckBox fx:id="filtreChBox" mnemonicParsing="false" onAction="#gererFiltreChBox" styleClass="label-bright" text="Filtrer" />
+                  <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#ajouterMot" text="Ajouter" />
-                        <Button mnemonicParsing="false" onAction="#supprimerMot" text="Supprimer" />
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#ajouterMot" styleClass="lion-default" text="Ajouter" />
+                        <Button mnemonicParsing="false" onAction="#supprimerMot" styleClass="lion-default-size-10" text="Supprimer" />
                      </children>
                   </HBox>
                </children>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0" styleClass="background-image">
                <children>
-                  <TextField fx:id="textFieldAffichageMot" onMouseClicked="#gererCliqueSurMot" />
-                  <Label alignment="CENTER" text="Définition :" />
-                  <TextArea fx:id="textAreaDifinition" onMouseClicked="#gererCliqueDefinition" prefHeight="64.0" prefWidth="174.0" />
-                  <Label text="Date saisie mot :" />
-                  <TextField fx:id="textFieldDateSaisieMot" />
-                  <Label text="Date du dernier modification :" />
-                  <TextField fx:id="textFieldDateModificationMot" />
-                  <Pane prefHeight="200.0" prefWidth="200.0">
+                  <TextField fx:id="textFieldAffichageMot" onMouseClicked="#gererCliqueSurMot" opacity="0.85" />
+                  <Label alignment="CENTER" styleClass="label-bright" text="Définition :" />
+                  <TextArea fx:id="textAreaDifinition" onMouseClicked="#gererCliqueDefinition" opacity="0.85" prefWidth="332.0">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin></TextArea>
+                  <Label styleClass="label-bright" text="Date saisie mot :" />
+                  <TextField fx:id="textFieldDateSaisieMot" editable="false" opacity="0.85" />
+                  <Label styleClass="label-bright" text="Date du dernier modification :" />
+                  <TextField fx:id="textFieldDateModificationMot" editable="false" opacity="0.85" />
+                  <Pane nodeOrientation="LEFT_TO_RIGHT" prefHeight="212.0" prefWidth="314.0">
                      <children>
                         <fx:include source="Image.fxml" />
                      </children>
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="10.0" />
+                     </VBox.margin>
                   </Pane>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                      <children>
-                        <Button fx:id="buttonAnnuler" mnemonicParsing="false" onAction="#annulerModification" text="Annuler" />
-                        <Button fx:id="buttonModifier" mnemonicParsing="false" onAction="#modifierMot" text="Modifier" />
+                        <Button fx:id="buttonAnnuler" cancelButton="true" mnemonicParsing="false" onAction="#annulerModification" styleClass="lion-default" text="Annuler" />
+                        <Button fx:id="buttonModifier" mnemonicParsing="false" onAction="#modifierMot" styleClass="lion-default" text="Modifier" />
                      </children>
+                     <padding>
+                        <Insets top="20.0" />
+                     </padding>
                   </HBox>
                </children>
+               <padding>
+                  <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+               </padding>
             </VBox>
         </items>
       </SplitPane>
    </center>
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
+      <MenuBar styleClass="background" BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="Fichier">
             <items>

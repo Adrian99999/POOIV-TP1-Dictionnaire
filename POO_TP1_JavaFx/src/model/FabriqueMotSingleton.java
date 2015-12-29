@@ -3,14 +3,7 @@ package model;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
-import java.util.TreeSet;
-import java.text.Collator;
-import java.text.Normalizer;
 /**
  * Classe qui fabrique les mots et le diactionaire
  * @author Adrian Pinzaru

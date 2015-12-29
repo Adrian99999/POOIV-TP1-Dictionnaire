@@ -2,8 +2,10 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.ResourceBundle;
-
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -13,13 +15,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
@@ -67,7 +71,7 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void ajouterMot(ActionEvent event) {
-
+    	
     }
 
     @FXML
@@ -77,7 +81,13 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void modifierMot(ActionEvent event) {
-
+    	//si le mot n'a pas été modiffié
+    	if(listViewMots.getSelectionModel().getSelectedItem().equals(textFieldAffichageMot.getText().toString()))
+    	{
+    		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDefinition(textAreaDifinition.getText());
+    		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDateModificationMot(LocalDate.now());
+    		
+    	}
     }
 
     @FXML
@@ -138,7 +148,20 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void supprimerMot(ActionEvent event) {
-
+    	Alert alert = new Alert(AlertType.CONFIRMATION);
+    	alert.setTitle("Suppression mot");
+    	alert.setHeaderText("Suppression du mot : " + listViewMots.getSelectionModel().getSelectedItem());
+    	alert.setContentText("Etes vous sure de vouloir supprimer ce mot?");
+    	Optional<ButtonType> result = alert.showAndWait();
+    	if(result.get() == ButtonType.OK)
+    	{
+    		listeDesMotsAffiches.remove(listViewMots.getSelectionModel().getSelectedIndex());
+    		dictionnaire.remove(listViewMots.getSelectionModel().getSelectedItem().toString());
+    	}
+    	else
+    	{
+    		
+    	}
     }
     
     private ObservableList<String> listeDesMotsAffiches = FXCollections.observableArrayList();
@@ -151,14 +174,23 @@ public class ControllerDictionaire implements Initializable{
     	{
     		textFieldDateModificationMot.setText(mot.getDateModificationMot().toString());
     		textFieldDateSaisieMot.setText(mot.getDateSaisieMot().toString());
-    		textFieldFichierMot.setText(mot.getNomFichier());
+    		//textFieldFichierMot.setText(mot.getNomFichier());
     		textAreaDifinition.setText(mot.getDefinition());
+    		//pour ne pas avoir d'erreurs 
+    		Platform.runLater(new Runnable() {
+    		    @Override
+    		    public void run() {
+    		    	textAreaDifinition.requestFocus();
+    		    }
+    		});
+    		
     	}
     	else
     	{
+    		
     		textFieldDateModificationMot.setText("");
     		textFieldDateSaisieMot.setText("");
-    		textFieldFichierMot.setText("");
+    		//textFieldFichierMot.setText("");
     		textAreaDifinition.setText("");
     	}
     }
@@ -184,6 +216,7 @@ public class ControllerDictionaire implements Initializable{
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				System.out.println(newValue);
 				textFieldAffichageMot.setText(newValue);
+				
 				afficherInfoMot(dictionnaire.get(newValue));
 			}
 		});
