@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
+
 import javafx.application.Platform;
 
 
@@ -30,6 +31,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
