@@ -1,7 +1,9 @@
 package model;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,8 +22,8 @@ public class FabriqueMotSingleton
 {
 	private static FabriqueMotSingleton instance= null;
 	private Dictionnaire dictionnaire;
-	
 	private Properties properties = new Properties();
+	
 	/**
 	 * Constructeur de la classe, execut la lecture du fichier proprietes.xml et cree le dictionaire;
 	 */
@@ -42,46 +44,57 @@ public class FabriqueMotSingleton
 		}
 		return instance;
 	}
-	/**
-	 * Méthode qui crée le dictionaire, remplit la Map
-	 */
-	private void creerDictionaire()
-	{
-		dictionnaire = new Dictionnaire();
-		GestionFichier fichier = new GestionFichier();
-		for (int i=0; i<fichier.getListeMots().size(); i++)
-		{
-			//String dateCreationMot = new SimpleDateFormat("yyyy/MM/dd HH-mm-ss").format(Calendar.getInstance().getTime());
-
-			Mot mot = new Mot(fichier.getListeMots().get(i),"définition", "nom fichier", LocalDate.now(), LocalDate.now() );
-			
-			dictionnaire.put(fichier.getListeMots().get(i), mot);
-		}
-	}
+	
 	/**
 	 * Méthode qui lit le fichier de configuration
 	 */
 	private void lireProprietes()
 	{
 		InputStream in = this.getClass().getResourceAsStream("properties.xml");
+		
 		try {
-			
 			properties.loadFromXML(in);
-			
+			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally{
-			try {
-				
-				in.close();
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
+	
+	/**
+	 * Méthode qui crée le dictionaire, remplit la Map
+	 */
+	private void creerDictionaire()
+	{
+		dictionnaire = new Dictionnaire();
+		dictionnaire.setMaxMotDef(properties.getProperty("max.mots"));
+		
+		
+//		new Thread(() -> {
+			BufferedReader br = null;
+			
+			
+			try {
+				String line = null;
+	
+				br  = new BufferedReader(
+						new InputStreamReader(
+								this.getClass()
+								.getResourceAsStream("liste_de_mots.txt")));
+				
+				while((line = br.readLine()) != null)
+				{
+//					System.out.println(line);
+					dictionnaire.put(line, new Mot(line));
+				}
+				
+				br.close();
+			
+			} catch ( IOException e) {
+				e.printStackTrace();
+			}
+//		}).start();;
+	}
+
 
 	public Dictionnaire getDictionnaire() {
 		return dictionnaire;

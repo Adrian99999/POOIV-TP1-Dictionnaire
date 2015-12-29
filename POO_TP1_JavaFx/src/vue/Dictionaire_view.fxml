@@ -7,8 +7,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane prefHeight="396.0" prefWidth="424.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
+<BorderPane prefHeight="493.0" prefWidth="509.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
    <center>
       <SplitPane dividerPositions="0.36255924170616116" prefHeight="396.0" prefWidth="527.0" BorderPane.alignment="CENTER">
         <items>
@@ -28,13 +27,13 @@
                   <ListView fx:id="listViewMots" prefHeight="239.0" prefWidth="205.0" />
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#ajouterMot" text="Ajouter" />
-                        <Button mnemonicParsing="false" onAction="#supprimerMot" text="Supprimer" />
+                        <Button fx:id="buttonAjouter" mnemonicParsing="false" onAction="#ajouterMot" text="Ajouter" />
+                        <Button fx:id="buttonEffacer" mnemonicParsing="false" onAction="#supprimerMot" text="Supprimer" />
                      </children>
                   </HBox>
                </children>
             </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="sectionDefinition" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <TextField fx:id="textFieldAffichageMot" onMouseClicked="#gererCliqueSurMot" />
                   <Label alignment="CENTER" text="Définition :" />
