@@ -9,9 +9,9 @@
 
 <BorderPane prefHeight="500.0" prefWidth="620.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
    <center>
-      <SplitPane dividerPositions="0.3851132686084142" prefHeight="396.0" prefWidth="527.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.3851132686084142" prefHeight="396.0" prefWidth="527.0" styleClass="background-image" BorderPane.alignment="CENTER">
         <items>
-            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" styleClass="background-image">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                <children>
                   <Label prefHeight="17.0" prefWidth="225.0" styleClass="label-bright" text="Recherche">
                      <font>
@@ -37,6 +37,7 @@
                </padding>
             </VBox>
             <VBox fx:id="sectionDefinition" prefHeight="200.0" prefWidth="100.0" styleClass="background-image">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                <children>
                   <TextField fx:id="textFieldAffichageMot" onMouseClicked="#gererCliqueSurMot" opacity="0.85" />
                   <Label alignment="CENTER" styleClass="label-bright" text="Définition :" />
