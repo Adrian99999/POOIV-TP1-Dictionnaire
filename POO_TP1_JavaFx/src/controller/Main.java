@@ -21,7 +21,7 @@ public class Main extends Application {
 			Pane root = (Pane) loader.load();
 			Scene scene = new Scene(root);
 			primaryStage.setScene(scene);
-			primaryStage.setTitle("Dictionaire");
+			primaryStage.setTitle("Dictionnaire");
 			primaryStage.getIcons().add(new Image("/vue/dictionary.png"));
 			primaryStage.show();
 		

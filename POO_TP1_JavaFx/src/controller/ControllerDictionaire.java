@@ -2,9 +2,9 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -71,7 +71,7 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void ajouterMot(ActionEvent event) {
-
+    	
     }
 
     @FXML
@@ -81,7 +81,13 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void modifierMot(ActionEvent event) {
-
+    	//si le mot n'a pas été modiffié
+    	if(listViewMots.getSelectionModel().getSelectedItem().equals(textFieldAffichageMot.getText().toString()))
+    	{
+    		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDefinition(textAreaDifinition.getText());
+    		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDateModificationMot(LocalDate.now());
+    		
+    	}
     }
 
     @FXML

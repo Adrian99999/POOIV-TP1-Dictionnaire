@@ -27,7 +27,7 @@
                   <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#ajouterMot" styleClass="lion-default" text="Ajouter" />
+                        <Button defaultButton="true" mnemonicParsing="false" onAction="#ajouterMot" styleClass="lion-default" text="Ajouter" />
                         <Button mnemonicParsing="false" onAction="#supprimerMot" styleClass="lion-default-size-10" text="Supprimer" />
                      </children>
                   </HBox>
@@ -58,7 +58,7 @@
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                      <children>
-                        <Button fx:id="buttonAnnuler" mnemonicParsing="false" onAction="#annulerModification" styleClass="lion-default" text="Annuler" />
+                        <Button fx:id="buttonAnnuler" cancelButton="true" mnemonicParsing="false" onAction="#annulerModification" styleClass="lion-default" text="Annuler" />
                         <Button fx:id="buttonModifier" mnemonicParsing="false" onAction="#modifierMot" styleClass="lion-default" text="Modifier" />
                      </children>
                      <padding>
