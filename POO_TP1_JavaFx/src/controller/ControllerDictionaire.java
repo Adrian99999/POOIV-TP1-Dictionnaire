@@ -155,7 +155,7 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void rechercherLeMotComplet(ActionEvent event) {
-    	
+    	System.out.println("Recherche lancée");
     }
 
     @FXML

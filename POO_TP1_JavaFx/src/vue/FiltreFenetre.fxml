@@ -13,7 +13,7 @@
          </padding></Label>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" text="Date" />
+            <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" text="Date" />
             <ComboBox fx:id="typeDateComBox" disable="true" prefWidth="150.0" />
             <ComboBox fx:id="typeFiltreDateComBox" disable="true" prefWidth="150.0" />
             <DatePicker fx:id="dateFiltrePicker" />
@@ -32,8 +32,8 @@
       </HBox>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <Button fx:id="annulerBtn" mnemonicParsing="false" styleClass="lion-default" text="Annuler" />
-            <Button fx:id="appliquerBtn" mnemonicParsing="false" styleClass="lion-default" text="Appliquer" />
+            <Button fx:id="annulerBtn" mnemonicParsing="false" onAction="#annuler" styleClass="lion-default" text="Annuler" />
+            <Button fx:id="appliquerBtn" mnemonicParsing="false" onAction="#appliquer" styleClass="lion-default" text="Appliquer" />
          </children>
          <padding>
             <Insets left="20.0" />
