@@ -6,6 +6,8 @@
 .background-image
 {
 	 -fx-background-image: url("Books.jpg");
+	
+	 -fx-background-size: stretch;	 
 }
 .lion-default {
     -fx-background-color: 
