@@ -1,11 +1,16 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import model.FiltreParDate.FILTRE_PAR_DATE_DE;
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
 
 /**
  * Classe qui gère le filtre des mots lors de la recherche
@@ -15,10 +20,10 @@ import javafx.beans.InvalidationListener;
 public class FiltreDeRecherche implements Predicate<Mot> {
 		
 	private String expressionDeDepart;
-	private boolean chercherDansLeContenu;
 	private Pattern regex;
-	private boolean doitContenirUneImage;
 	private FiltreParDate filtreParDate;
+	private boolean chercherDansLeContenu;
+	private boolean doitContenirUneImage;
 	
 	public static final int MIN_CHAR_RECH_CONTENU = 3;
 	
@@ -84,20 +89,24 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 		this.doitContenirUneImage = doit;
 	}
 	
+	public boolean getDoitContenirImage() {
+		return this.doitContenirUneImage;
+	}
+	
 	/**
 	 * Vérifie le mot.
 	 */
 	@Override
 	public boolean test(Mot mot) {
-		
+
 		if (!validerImage(mot)) {
 			return false;
 		}
-		
+
 		if (!validerLibelle(mot)) {
 			return false;
 		}
-		
+
 		return validerDate(mot);
 	}
 	
@@ -119,8 +128,10 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	private boolean validerLibelle(Mot mot) {
 		if (this.chercherDansLeContenu) {
 			return this.regex.matcher(mot.getMot()).find();
-		} else {
+		} else if (!this.expressionDeDepart.isEmpty()) {
 			return mot.getMot().equals(this.expressionDeDepart);
+		} else {
+			return true;
 		}
 	}
 	
@@ -154,7 +165,7 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 	
 	public boolean estNull() {
-		return this.expressionDeDepart.isEmpty() && !this.doitContenirUneImage && this.filtreParDate == null;
+		return this.expressionDeDepart.isEmpty() && !this.hasFiltreParDateOuParImage();
 	}
 	
 	public static FiltreDeRecherche getNull() {
@@ -168,6 +179,48 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 
 	public boolean rechercheDansLeContenu() {
 		return this.chercherDansLeContenu;
+	}
+
+	public boolean hasFiltreParDateOuParImage() {
+		return this.doitContenirUneImage || this.filtreParDate != null;
+	}
+
+	public String getDefinition() {
+		List<String> filtres = new ArrayList<>();
+			
+		if (this.filtreParDate != null) {
+			filtres.add(this.filtreParDate.toString());
+		}
+		
+		if (this.doitContenirUneImage) {
+			filtres.add("avec image");
+		}
+		
+		if (filtres.isEmpty()) {
+			filtres.add("aucun filtre");
+		}
+		
+		String filtreString = String.join(
+				", ", 
+				filtres
+					.stream()
+					.map((s) -> {return s.toLowerCase();})
+					.collect(Collectors.toList())
+					);
+		
+		// Capitalize et point
+		filtreString = filtreString.substring(0, 1).toUpperCase() + filtreString.substring(1) + ".";
+
+		return filtreString;
+	}
+
+	public String getTypeFiltreString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public FiltreParDate getFiltreParDate() {
+		return this.filtreParDate;
 	}
 	
 	

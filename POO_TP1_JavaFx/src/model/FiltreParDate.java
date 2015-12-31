@@ -81,4 +81,42 @@ public class FiltreParDate implements Predicate<Mot>{
 		
 		return date;
 	}
+	
+	public String toString() {
+		String s = "";
+		
+		switch (this.typeDeFiltre) {
+		case MODIFICATION:
+			s += "Modifié";
+			break;
+		case SAISIE:
+			s+= "Saisi";
+			break;
+		}
+		
+		switch (this.moment) {
+		case AVANT:
+			s += " avant le ";
+			break;
+		case APRES:
+			s += " après le ";
+			break;
+		}
+		
+		s += this.date;
+		
+		return s;
+	}
+
+	public LocalDate getDate() {
+		return this.date;
+	}
+
+	public FILTRE_PAR_DATE_DE getTypeDate() {
+		return this.typeDeFiltre;
+	}
+
+	public MOMENT_PAR_RAPPORT_A_DATE getMoment() {
+		return this.moment;
+	}
 }

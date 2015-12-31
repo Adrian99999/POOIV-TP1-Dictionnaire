@@ -31,19 +31,46 @@
     -fx-text-fill: #242d35;
     -fx-font-size: 14px;
 }
-.label {
-    -fx-font-size: 11pt;
+.titre1, .label, .check-box {
     -fx-font-family: "Segoe UI Semibold";
     -fx-text-fill: white;
-    -fx-opacity: 0.6;
 }
 
-.label-bright {
-    -fx-font-size: 11pt;
-    -fx-font-family: "Segoe UI Semibold";
-    -fx-text-fill: white;
-    -fx-opacity: 1;
+.label {
+    -fx-font-size: 12pt;
 }
+
+.titre1 {
+    -fx-font-size: 14pt;
+}
+
+.check-box, #filtreDefinition {
+    -fx-font-size: 9pt;
+}
+
+.hyperlink {
+    -fx-text-fill: blue;
+    -fx-underline: true;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: lightblue;
+}
+
+#filtreDefinition {
+    -fx-text-fill: red;
+}
+
+.check-box, .hypertext, #filtreDefinition {
+    -fx-padding: 3pt;
+}
+
+#zoneOptions {
+    -fx-background-color: rgba(0, 0, 0, .25);
+    -fx-border-color: grey;
+}
+
+
 .button:default:hover {
     -fx-background-color: derive(-fx-focus-color,30%);
 }

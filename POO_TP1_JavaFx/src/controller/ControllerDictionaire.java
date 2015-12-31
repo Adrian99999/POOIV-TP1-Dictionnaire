@@ -35,6 +35,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
@@ -55,8 +57,8 @@ public class ControllerDictionaire implements Initializable{
     @FXML
     private CheckBox dansLeMotChBox;
 
-    @FXML
-    private CheckBox filtreChBox;
+//    @FXML
+//    private CheckBox filtreChBox;
 
     @FXML
     private ListView<String> listViewMots;
@@ -93,6 +95,9 @@ public class ControllerDictionaire implements Initializable{
     	
     @FXML
     private MenuItem fermerApplication;
+    
+    @FXML
+    private Text definitionFiltreText;
 
     @FXML
     void ajouterMot(ActionEvent event) {
@@ -141,8 +146,8 @@ public class ControllerDictionaire implements Initializable{
     }
 
     @FXML
-    void gererFiltreChBox(ActionEvent event) {
-    	if (filtreChBox.isSelected()) {
+    void gererFiltreHyperlink(ActionEvent event) {
+//    	if (filtreChBox.isSelected()) {
     		try {
 				FXMLLoader fxmlLoader = new FXMLLoader();
     			Pane root = fxmlLoader.load(
@@ -156,19 +161,24 @@ public class ControllerDictionaire implements Initializable{
 	    		filtreStage.show();
 	    		ControllerFiltreFenetre controleurFiltre = 
 	    				(ControllerFiltreFenetre) fxmlLoader.getController();
+	    		controleurFiltre.setValeurSelonFiltre(this.filtre);
 	    		controleurFiltre.addObserver((o, args) -> {
-	    			List<Object> objs = (List<Object>) args;
-	    			this.filtre.addFiltreParDate((FiltreParDate) objs.get(0));
-	    			this.filtre.setDoitContenirImage((Boolean) objs.get(1)); 
-	    			lancerRecherche();
+//	    			if (args != null) {
+		    			List<Object> objs = (List<Object>) args;
+		    			FiltreParDate filtreDate = (FiltreParDate) objs.get(0);
+		    			Boolean doitContenirImage = (Boolean) objs.get(1);
+	    				this.filtre.addFiltreParDate(filtreDate);
+	    				this.filtre.setDoitContenirImage(doitContenirImage);
+//	    			}
+	    			this.afficherDefinitionFiltre();
 	    		});
     		} catch (IOException e) {
 				e.printStackTrace();
 			}
     		
-    	} else {
-    		desactiverLeFiltre();
-    	}
+//    	} else {
+//    		desactiverLeFiltre();
+//    	}
     }
 
 	private void lancerRecherche() {
@@ -177,8 +187,7 @@ public class ControllerDictionaire implements Initializable{
 					champRecherche.getText(),
 					dansLeMotChBox.isSelected()
 					);
-			System.out.println("Recherche lancée");
-			System.out.println(this.filtre);
+			listeDesMotsAffiches.setAll("Rechreche en cours...");
 			listeDesMotsAffiches.setAll(dictionnaire.rechercher(this.filtre));
 		} catch (Exception e) {
 			afficherException(e, "Erreur de paramètre de recherche");
@@ -248,7 +257,7 @@ public class ControllerDictionaire implements Initializable{
 		
 		assert champRecherche != null : "fx:id=\"champRecherche\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
         assert dansLeMotChBox != null : "fx:id=\"dansLeMotChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert filtreChBox != null : "fx:id=\"filtreChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
+//        assert filtreChBox != null : "fx:id=\"filtreChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
         assert listViewMots != null : "fx:id=\"listViewMots\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
         assert buttonAjouter != null : "fx:id=\"buttonAjouter\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
         assert buttonEffacer != null : "fx:id=\"buttonEffacer\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
@@ -271,7 +280,8 @@ public class ControllerDictionaire implements Initializable{
 		listViewMots.setItems(listeDesMotsAffiches);
 		lierListeDesMotsEtAffichage();
 		buttonAjouter.disableProperty().bind(champRecherche.textProperty().isEmpty());
-		
+		definitionFiltreText.wrappingWidthProperty().bind(
+				((Pane) definitionFiltreText.getParent()).widthProperty().subtract(20));
 	}
 	
 	private void lancerLeChargementDuDictionnaire() {
@@ -290,15 +300,32 @@ public class ControllerDictionaire implements Initializable{
 	}
 	
 	private void setInterfaceEnModeChargement() {
+		afficherDefinitionFiltre();
 		listViewMots.setDisable(true);
 		listeDesMotsAffiches.add("Chargement...");
 		sectionDefinition.setVisible(false);
 		buttonAjouter.setDisable(true);
 		buttonEffacer.setDisable(true);
+		buttonRechercher.setDisable(true);
 	}
 	
+	private void afficherDefinitionFiltre() {
+//		definitionFiltreLabel.managedProperty().bind(definitionFiltreLabel.visibleProperty());
+//		definitionFiltreLabel.setVisible(this.filtre.hasFiltreParDateOuParImage());
+		definitionFiltreText.setText(this.filtre.getDefinition());
+		if (this.filtre.estNull()) {
+			definitionFiltreText.setFill(Color.GREEN);
+//			definitionFiltreText.setStyle("-fx-text-fill: green");
+		} else {
+			definitionFiltreText.setFill(Color.ORANGE);
+//			definitionFiltreText.setStyle("-fx-text-fill: orange");
+		}
+//		definitionFiltreLabel.setWrapText(true);
+	}
+
 	private void setInterfacePret() {
 		listViewMots.setDisable(false);
+		buttonRechercher.setDisable(false);
 	}
 	
 	private void lierListeDesMotsEtAffichage() {

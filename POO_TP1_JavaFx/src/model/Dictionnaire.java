@@ -33,7 +33,8 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 		
 		if (parametresDeRecherche.estNull()) {
 			resultat = new ArrayList<String>(this.keySet());
-		} else if (!parametresDeRecherche.rechercheDansLeContenu()) {
+		} else if (!parametresDeRecherche.rechercheDansLeContenu() && 
+				!parametresDeRecherche.getExpression().isEmpty()) {
 			resultat = new ArrayList<String>();
 			Mot mot = this.get(parametresDeRecherche.getExpression());
 			if (mot != null && parametresDeRecherche.test(mot)) {
