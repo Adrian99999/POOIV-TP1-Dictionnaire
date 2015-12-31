@@ -1,35 +1,26 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.Observable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import javafx.beans.InvalidationListener;
 
 /**
  * Classe qui gère le filtre des mots lors de la recherche
  * @author François Lefebvre et Adrian Pinzaru
  *
  */
-public class FiltreDeRecherche implements Predicate<Mot>{
-	
-	/**
-	 * Choix pour le type de filtre de date
-	 *
-	 */
-	public enum FILTRE_PAR_DATE_DE {
-		SAISIE, MODIFICATION
-	}
-	
-	/**
-	 * Choix de la période à vérifier par rapport à la date de référence.
-	 *
-	 */
-	public enum MOMENT_PAR_RAPPORT_A_DATE {
-		AVANT, APRES
-	}
-	
+public class FiltreDeRecherche implements Predicate<Mot> {
+		
+	private String expressionDeDepart;
+	private boolean chercherDansLeContenu;
 	private Pattern regex;
 	private boolean doitContenirUneImage;
 	private FiltreParDate filtreParDate;
+	
+	public static final int MIN_CHAR_RECH_CONTENU = 3;
 	
 	/**
 	 * Constructeur. Accepte les joker "*" et "?" pour remplacer un groupe
@@ -39,17 +30,43 @@ public class FiltreDeRecherche implements Predicate<Mot>{
 	 * @param chaine Chaîne de caractères du champ de saisie
 	 * @param chercherDansLeContenuDuMot Indication si on peut chercher dans
 	 * le contenu du mot ou seulement à partir du début.
+	 * @throws Exception 
 	 */
-	public FiltreDeRecherche (String chaine, boolean chercherDansLeContenuDuMot) {
-		String regexString = convertWildcardsToRegex(chaine);
-		if (!chercherDansLeContenuDuMot) {
-			regexString = "^" + regexString;
-		}
-		this.regex = Pattern.compile(regexString);
+	public FiltreDeRecherche (String chaine, boolean chercherDansLeContenuDuMot) 
+			throws Exception {
+		this.setExpression(chaine, chercherDansLeContenuDuMot);
 		this.filtreParDate = null;
 		this.doitContenirUneImage = false;
 	}
-
+	
+	public void setExpression(String text, boolean paramContenu) throws Exception {
+		if (paramContenu && text.length() < MIN_CHAR_RECH_CONTENU) {
+			throw new Exception("L'expression utilisée pour la recherche "
+					+ "dans le contenu doit avoir une longueur minimale "
+					+ "de trois caractères.");
+		}
+		
+		
+		this.expressionDeDepart = text;
+		
+		if (this.expressionDeDepart.contains("*") ||
+				this.expressionDeDepart.contains("?")) {
+			this.chercherDansLeContenu = true;
+			text = convertWildcardsToRegex(text);
+		}
+		
+		if (this.chercherDansLeContenu) {
+			if (!paramContenu) {
+				text = "^" + text + "$";
+			}
+			
+			this.regex = Pattern.compile(text);
+		}
+	}
+	
+	public String getExpression() {
+		return this.expressionDeDepart;
+	}
 	
 	/**
 	 * Ajoute un filtre de date au filtre.
@@ -91,7 +108,7 @@ public class FiltreDeRecherche implements Predicate<Mot>{
 	 * @return True si valide.
 	 */
 	private boolean validerImage(Mot mot) {
-		return doitContenirUneImage && mot.hasImage();
+		return doitContenirUneImage ? mot.hasImage() : true;
 	}
 	
 	/**
@@ -100,7 +117,11 @@ public class FiltreDeRecherche implements Predicate<Mot>{
 	 * @return True si valide.
 	 */
 	private boolean validerLibelle(Mot mot) {
-		return this.regex.matcher(mot.getMot()).matches();
+		if (this.chercherDansLeContenu) {
+			return this.regex.matcher(mot.getMot()).find();
+		} else {
+			return mot.getMot().equals(this.expressionDeDepart);
+		}
 	}
 	
 	/**
@@ -119,71 +140,36 @@ public class FiltreDeRecherche implements Predicate<Mot>{
 	 */
 	private String convertWildcardsToRegex(String wcString) {
 		String regex = wcString;
-		regex.replace("*", ".*");
-		regex.replace("?", ".");
-		regex += "$";
+		regex = regex.replace("*", ".*");
+		regex = regex.replace("?", ".");
 		return regex;
 	}
 	
-	/**
-	 * Classe interne qui gère le filtre par date.
-	 * @author François Lefebvre et Adrian Pinzaru
-	 *
-	 */
-	public class FiltreParDate implements Predicate<Mot>{
-		private MOMENT_PAR_RAPPORT_A_DATE moment;
-		private FILTRE_PAR_DATE_DE typeDeFiltre;
-		private LocalDate date;
-		
-		/**
-		 * Constructeur.
-		 * @param momentDate Avant ou après la date de référence.
-		 * @param typeDeFiltre Sur la date de saisie ou sur la date de modification.
-		 * @param date Date de référence
-		 */
-		public FiltreParDate(MOMENT_PAR_RAPPORT_A_DATE momentDate, FILTRE_PAR_DATE_DE typeDeFiltre, LocalDate date) {
-			this.moment = momentDate;
-			this.typeDeFiltre = typeDeFiltre;
-			this.date = date;
-		}
-		
-		/*
-		 * Vérifie la validité du mot selon la date.
-		 */
-		@Override
-		public boolean test(Mot mot) {
-			LocalDate dateMot = getDateCible(mot);
-			
-			switch (this.moment) {
-			case AVANT:
-				return dateMot.isBefore(this.date);
-			case APRES:
-				return dateMot.isAfter(this.date) || dateMot.isEqual(this.date);
-			}
-			return false;
-		}
-		
-		/**
-		 * Récupère la date ciblée par le filtre.
-		 * @param mot Mot à vérifier.
-		 * @return Date ciblée.
-		 */
-		private LocalDate getDateCible(Mot mot) {
-			
-			LocalDate date = null;
-			
-			switch (this.typeDeFiltre)
-			{
-			case SAISIE:
-				date = mot.getDateSaisieMot();
-				break;
-			
-			case MODIFICATION:
-				date = mot.getDateModificationMot();
-				break;
-			}
-			
-			return date;
+	public String toString() {
+		if (this.chercherDansLeContenu) {
+			return regex.toString() + " dans le contenu";
+		} else {
+			return this.expressionDeDepart + " expression exacte";
 		}
 	}
+	
+	public boolean estNull() {
+		return this.expressionDeDepart.isEmpty() && !this.doitContenirUneImage && this.filtreParDate == null;
+	}
+	
+	public static FiltreDeRecherche getNull() {
+		try {
+			return new FiltreDeRecherche("", false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public boolean rechercheDansLeContenu() {
+		return this.chercherDansLeContenu;
+	}
+	
+	
+
 }

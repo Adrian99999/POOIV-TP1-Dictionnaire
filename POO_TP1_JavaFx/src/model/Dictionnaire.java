@@ -1,6 +1,7 @@
 package model;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -27,13 +28,26 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Mot> rechercher(FiltreDeRecherche parametresDeRecherche) {
+	public List<String> rechercher(FiltreDeRecherche parametresDeRecherche) {
+		List<String> resultat;
 		
-		List<Object> liste = this.values()
-								.stream()
-								.filter(parametresDeRecherche)
-								.collect(Collectors.toList());
-		return (List<Mot>) (Object) liste;
+		if (parametresDeRecherche.estNull()) {
+			resultat = new ArrayList<String>(this.keySet());
+		} else if (!parametresDeRecherche.rechercheDansLeContenu()) {
+			resultat = new ArrayList<String>();
+			Mot mot = this.get(parametresDeRecherche.getExpression());
+			if (mot != null && parametresDeRecherche.test(mot)) {
+				resultat.add(mot.getMot());
+			}
+		} else {
+			List<Object> liste = this.values()
+									.stream()
+									.filter(parametresDeRecherche)
+									.map(Mot::getMot)
+									.collect(Collectors.toList());
+			resultat = (List<String>) (Object) liste;
+		}
+		return resultat;
 	}
 
 	public void setMaxMotDef(String maxProperty) {

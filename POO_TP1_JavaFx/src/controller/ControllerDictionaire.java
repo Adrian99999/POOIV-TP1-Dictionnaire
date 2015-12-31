@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -26,6 +27,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -36,12 +38,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
+import model.FiltreDeRecherche;
+import model.FiltreParDate;
 import model.Mot;
 
 public class ControllerDictionaire implements Initializable{
 	
 	private ObservableList<String> listeDesMotsAffiches = FXCollections.observableArrayList();
     private Dictionnaire dictionnaire;
+    private FiltreDeRecherche filtre = FiltreDeRecherche.getNull();
 
 	
     @FXML
@@ -82,6 +87,9 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     private Button buttonModifier;
+    
+    @FXML
+    private Button buttonRechercher;
     	
     @FXML
     private MenuItem fermerApplication;
@@ -100,6 +108,11 @@ public class ControllerDictionaire implements Initializable{
     		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDateModificationMot(LocalDate.now());
     		
     	}
+    }
+    
+    @FXML
+    void rechercher(ActionEvent event) {
+    	this.lancerRecherche();
     }
 
     @FXML
@@ -131,31 +144,55 @@ public class ControllerDictionaire implements Initializable{
     void gererFiltreChBox(ActionEvent event) {
     	if (filtreChBox.isSelected()) {
     		try {
-				Pane root = FXMLLoader.load(
+				FXMLLoader fxmlLoader = new FXMLLoader();
+    			Pane root = fxmlLoader.load(
 						ControllerDictionaire.class.getResource(
 								"../vue/FiltreFenetre.fxml"
-								)
+								).openStream()
 						);
 				Stage filtreStage = new Stage();
 	    		filtreStage.setTitle("Filtre");
 	    		filtreStage.setScene(new Scene(root));
 	    		filtreStage.show();
+	    		ControllerFiltreFenetre controleurFiltre = 
+	    				(ControllerFiltreFenetre) fxmlLoader.getController();
+	    		controleurFiltre.addObserver((o, args) -> {
+	    			List<Object> objs = (List<Object>) args;
+	    			this.filtre.addFiltreParDate((FiltreParDate) objs.get(0));
+	    			this.filtre.setDoitContenirImage((Boolean) objs.get(1)); 
+	    			lancerRecherche();
+	    		});
     		} catch (IOException e) {
 				e.printStackTrace();
 			}
+    		
     	} else {
     		desactiverLeFiltre();
     	}
     }
 
-    @FXML
+	private void lancerRecherche() {
+		try {
+			this.filtre.setExpression(
+					champRecherche.getText(),
+					dansLeMotChBox.isSelected()
+					);
+			System.out.println("Recherche lancée");
+			System.out.println(this.filtre);
+			listeDesMotsAffiches.setAll(dictionnaire.rechercher(this.filtre));
+		} catch (Exception e) {
+			afficherException(e, "Erreur de paramètre de recherche");
+		}
+	}
+
+	@FXML
     void rechercherAChaqueLettre(KeyEvent event) {
 
     }
 
     @FXML
     void rechercherLeMotComplet(ActionEvent event) {
-    	System.out.println("Recherche lancée");
+    	
     }
 
     @FXML
@@ -287,7 +324,16 @@ public class ControllerDictionaire implements Initializable{
 	 * Méthode qui lit le fichier de configuration
 	 */	
 	private void desactiverLeFiltre() {
-		
+		this.filtre = FiltreDeRecherche.getNull();
+	}
+	
+	private void afficherException(Exception e, String titre) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Erreur");
+		alert.setHeaderText(titre);
+		alert.getDialogPane().setPrefSize(400, 200);
+		alert.setContentText(e.getMessage());
+		alert.showAndWait();
 	}
 
 }

@@ -24,11 +24,12 @@
                   <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" opacity="0.85" />
                   <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" styleClass="label-bright" text="Expression dans le mot" />
                   <CheckBox fx:id="filtreChBox" mnemonicParsing="false" onAction="#gererFiltreChBox" styleClass="label-bright" text="Filtrer" />
+                  <Button fx:id="buttonRechercher" mnemonicParsing="false" onAction="#rechercher" styleClass="lion-default" text="Rechercher" />
                   <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
-                        <Button fx:id="buttonAjouter" mnemonicParsing="false" onAction="#ajouterMot" text="Ajouter" styleClass="lion-default"/>
-                        <Button fx:id="buttonEffacer" mnemonicParsing="false" onAction="#supprimerMot" text="Supprimer" styleClass="lion-default-size-10"/>
+                        <Button fx:id="buttonAjouter" mnemonicParsing="false" onAction="#ajouterMot" styleClass="lion-default" text="Ajouter" />
+                        <Button fx:id="buttonEffacer" mnemonicParsing="false" onAction="#supprimerMot" styleClass="lion-default-size-10" text="Supprimer" />
                      </children>
                   </HBox>
                </children>
