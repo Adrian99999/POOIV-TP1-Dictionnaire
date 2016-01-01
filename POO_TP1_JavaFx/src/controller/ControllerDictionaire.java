@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -32,6 +33,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -49,7 +51,7 @@ public class ControllerDictionaire implements Initializable{
 	private ObservableList<String> listeDesMotsAffiches = FXCollections.observableArrayList();
     private Dictionnaire dictionnaire;
     private FiltreDeRecherche filtre = FiltreDeRecherche.getNull();
-
+    private boolean recherchePermise;
 	
     @FXML
     private TextField champRecherche;
@@ -117,7 +119,7 @@ public class ControllerDictionaire implements Initializable{
     
     @FXML
     void rechercher(ActionEvent event) {
-    	this.lancerRecherche();
+    	this.lancerRecherche(champRecherche.getText());
     }
 
     @FXML
@@ -161,15 +163,13 @@ public class ControllerDictionaire implements Initializable{
 	    		filtreStage.show();
 	    		ControllerFiltreFenetre controleurFiltre = 
 	    				(ControllerFiltreFenetre) fxmlLoader.getController();
+	    		controleurFiltre.setFenetre(filtreStage);
 	    		controleurFiltre.setValeurSelonFiltre(this.filtre);
 	    		controleurFiltre.addObserver((o, args) -> {
-//	    			if (args != null) {
-		    			List<Object> objs = (List<Object>) args;
-		    			FiltreParDate filtreDate = (FiltreParDate) objs.get(0);
-		    			Boolean doitContenirImage = (Boolean) objs.get(1);
-	    				this.filtre.addFiltreParDate(filtreDate);
-	    				this.filtre.setDoitContenirImage(doitContenirImage);
-//	    			}
+    				Object[] objs = (Object[]) args;
+	    			this.filtre.setFiltreParDate((FiltreParDate) objs[0]);
+	    			this.filtre.setFiltreParDateActif((boolean) objs[1]);
+    				this.filtre.setDoitContenirImage((boolean) objs[2]);
 	    			this.afficherDefinitionFiltre();
 	    		});
     		} catch (IOException e) {
@@ -181,27 +181,43 @@ public class ControllerDictionaire implements Initializable{
 //    	}
     }
 
-	private void lancerRecherche() {
+	private void lancerRecherche(String expression) {
 		try {
 			this.filtre.setExpression(
-					champRecherche.getText(),
+					expression,
 					dansLeMotChBox.isSelected()
 					);
+			listViewMots.setDisable(true);
 			listeDesMotsAffiches.setAll("Rechreche en cours...");
-			listeDesMotsAffiches.setAll(dictionnaire.rechercher(this.filtre));
+			afficherLaListeDesMots(dictionnaire.rechercher(this.filtre));
+			champRecherche.end();
+			listViewMots.setDisable(false);
 		} catch (Exception e) {
 			afficherException(e, "Erreur de paramètre de recherche");
 		}
 	}
 
 	@FXML
-    void rechercherAChaqueLettre(KeyEvent event) {
-
-    }
-
-    @FXML
-    void rechercherLeMotComplet(ActionEvent event) {
-    	
+    void gererTouchesDuChampDeRecherche(KeyEvent event) {
+		System.out.println("key typed event " + event.getCode());
+		if (event.getCode() == KeyCode.ENTER) {
+			if (!listViewMots.getSelectionModel().isEmpty()) {
+				String libelle = listViewMots.getSelectionModel().getSelectedItem();
+				System.out.println(libelle);
+				afficherInfoMot(dictionnaire.get(libelle));
+			} else {
+				sectionDefinition.setVisible(false);
+			}
+			event.consume();
+//		} else if (event.getCode() == KeyCode.UP) {
+//			listViewMots.getSelectionModel().selectPrevious();
+//			champRecherche.end();
+//			event.consume();
+		} else if (event.getCode() == KeyCode.DOWN) {
+			listViewMots.requestFocus();
+			listViewMots.getSelectionModel().selectNext();
+			event.consume();
+		}
     }
 
     @FXML
@@ -225,9 +241,11 @@ public class ControllerDictionaire implements Initializable{
        
     private void afficherInfoMot(Mot mot)
     {
+    	sectionDefinition.setVisible(mot != null);
     	
     	if(mot != null)
     	{
+    		textFieldAffichageMot.setText(mot.getCapMot());
     		String dateModification = mot.getDateModificationMot() == null ?
     				"" : mot.getDateModificationMot().toString();
     		textFieldDateModificationMot.setText(dateModification);
@@ -235,41 +253,28 @@ public class ControllerDictionaire implements Initializable{
     		//textFieldFichierMot.setText(mot.getNomFichier());
     		textAreaDifinition.setText(mot.getDefinition());
     		//pour ne pas avoir d'erreurs 
-    		Platform.runLater(new Runnable() {
-    		    @Override
-    		    public void run() {
-    		    	textAreaDifinition.requestFocus();
-    		    }
-    		});
+//    		Platform.runLater(new Runnable() {
+//    		    @Override
+//    		    public void run() {
+//    		    	textAreaDifinition.requestFocus();
+//    		    	champRecherche.requestFocus();
+//    		    	champRecherche.end();
+//    		    }
+//    		});
     		
     	}
-    	else
-    	{
-    		
-    		textFieldDateModificationMot.setText("");
-    		textFieldDateSaisieMot.setText("");
-    		//textFieldFichierMot.setText("");
-    		textAreaDifinition.setText("");
-    	}
+//    	else
+//    	{
+//    		
+//    		textFieldDateModificationMot.setText("");
+//    		textFieldDateSaisieMot.setText("");
+//    		//textFieldFichierMot.setText("");
+//    		textAreaDifinition.setText("");
+//    	}
     }
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
-		assert champRecherche != null : "fx:id=\"champRecherche\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert dansLeMotChBox != null : "fx:id=\"dansLeMotChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-//        assert filtreChBox != null : "fx:id=\"filtreChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert listViewMots != null : "fx:id=\"listViewMots\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonAjouter != null : "fx:id=\"buttonAjouter\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonEffacer != null : "fx:id=\"buttonEffacer\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert sectionDefinition != null : "fx:id=\"sectionDefinition\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldAffichageMot != null : "fx:id=\"textFieldAffichageMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textAreaDifinition != null : "fx:id=\"textAreaDifinition\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldDateSaisieMot != null : "fx:id=\"textFieldDateSaisieMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldDateModificationMot != null : "fx:id=\"textFieldDateModificationMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonAnnuler != null : "fx:id=\"buttonAnnuler\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonModifier != null : "fx:id=\"buttonModifier\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert fermerApplication != null : "fx:id=\"fermerApplication\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        
 		lancerLeChargementDuDictionnaire();
 
 		lierLesElements();
@@ -282,21 +287,50 @@ public class ControllerDictionaire implements Initializable{
 		buttonAjouter.disableProperty().bind(champRecherche.textProperty().isEmpty());
 		definitionFiltreText.wrappingWidthProperty().bind(
 				((Pane) definitionFiltreText.getParent()).widthProperty().subtract(20));
+		champRecherche.textProperty().addListener((obs, old, ne)->{
+			lancerRechercheDebutantPar(ne);
+		});
+//		listViewMots.getSelectionModel()
+//			.selectedIndexProperty().addListener(
+//				(obs, old, n) -> {
+//					listViewMots.scrollTo((int) n);
+//				});
+	}
+	
+	private void lancerRechercheDebutantPar(String expressionSaisie) {
+		
+		if (recherchePermise) {
+			if (FiltreDeRecherche.contientDesJokers(expressionSaisie)) {
+				lancerRecherche(expressionSaisie);
+			} else {
+				String expression = expressionSaisie + "*";
+				if (this.filtre.validerExpression(expression)) {
+					lancerRecherche(expression);
+				}
+			}
+		}
 	}
 	
 	private void lancerLeChargementDuDictionnaire() {
 		
+		this.recherchePermise = false;
 		setInterfaceEnModeChargement();
 		
 		new Thread(() -> {
 			creerLeDictionnaire();
 			Platform.runLater(() -> {
 				setInterfacePret();
-				listeDesMotsAffiches.clear();
-				listeDesMotsAffiches.addAll(dictionnaire.keySet());
-			});
+//				afficherLaListeDesMots(dictionnaire.keySet());
+				lancerRechercheDebutantPar(champRecherche.getText());
+				});
 		}).start();
 		
+	}
+	
+	private void afficherLaListeDesMots(Collection<String> collection) {
+		listeDesMotsAffiches.clear();
+		listeDesMotsAffiches.addAll(collection);
+		listViewMots.getSelectionModel().selectFirst();
 	}
 	
 	private void setInterfaceEnModeChargement() {
@@ -310,20 +344,16 @@ public class ControllerDictionaire implements Initializable{
 	}
 	
 	private void afficherDefinitionFiltre() {
-//		definitionFiltreLabel.managedProperty().bind(definitionFiltreLabel.visibleProperty());
-//		definitionFiltreLabel.setVisible(this.filtre.hasFiltreParDateOuParImage());
 		definitionFiltreText.setText(this.filtre.getDefinition());
 		if (this.filtre.estNull()) {
 			definitionFiltreText.setFill(Color.GREEN);
-//			definitionFiltreText.setStyle("-fx-text-fill: green");
 		} else {
 			definitionFiltreText.setFill(Color.ORANGE);
-//			definitionFiltreText.setStyle("-fx-text-fill: orange");
 		}
-//		definitionFiltreLabel.setWrapText(true);
 	}
 
 	private void setInterfacePret() {
+		this.recherchePermise = true;
 		listViewMots.setDisable(false);
 		buttonRechercher.setDisable(false);
 	}
@@ -332,12 +362,10 @@ public class ControllerDictionaire implements Initializable{
 		listViewMots.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				sectionDefinition.setVisible(newValue != null);
 				buttonEffacer.setDisable(newValue != null);
-				System.out.println(newValue);
-				textFieldAffichageMot.setText(newValue);
-				
-				afficherInfoMot(dictionnaire.get(newValue));
+				if (listViewMots.isFocused()) {
+					afficherInfoMot(dictionnaire.get(newValue));
+				}
 			}
 		});
 	}

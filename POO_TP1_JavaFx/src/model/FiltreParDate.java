@@ -119,4 +119,12 @@ public class FiltreParDate implements Predicate<Mot>{
 	public MOMENT_PAR_RAPPORT_A_DATE getMoment() {
 		return this.moment;
 	}
+
+	public static FiltreParDate getDefault() {
+		return new FiltreParDate(
+				MOMENT_PAR_RAPPORT_A_DATE.APRES,
+				FILTRE_PAR_DATE_DE.SAISIE,
+				LocalDate.now()
+				);
+	}
 }

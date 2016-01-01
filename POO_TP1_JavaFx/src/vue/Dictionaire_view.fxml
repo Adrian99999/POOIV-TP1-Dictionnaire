@@ -22,7 +22,7 @@
                         <Insets left="20.0" />
                      </padding>
                   </Label>
-                  <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" opacity="0.85" />
+                  <TextField fx:id="champRecherche" onKeyReleased="#gererTouchesDuChampDeRecherche" opacity="0.85" />
                   <VBox id="zoneOptions">
                      <children>
                         <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" text="Expression dans le mot" />

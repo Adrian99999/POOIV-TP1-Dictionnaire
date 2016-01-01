@@ -22,10 +22,12 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.stage.Window;
 
 public class ControllerFiltreFenetre extends Observable implements Initializable {
 	
@@ -43,6 +45,7 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
 	}	
 	
 	private FiltreDeRecherche filtre = FiltreDeRecherche.getNull();
+	private Window fenetre;
 	
     @FXML
     private CheckBox filtreDateChBox;
@@ -65,15 +68,9 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
     @FXML
     private Button appliquerBtn;
     
-    private void fermerFenetre(Event event) {
-    	((Node)(event.getSource())).getScene().getWindow().hide();
-    }
-    
     @FXML
     void annuler(ActionEvent event) {
-//    	this.setChanged();
-//    	this.notifyObservers(null);
-    	this.fermerFenetre(event);
+    	fenetre.hide();
     }
 
     @FXML
@@ -87,12 +84,17 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
     			dateFiltrePicker.getValue()
     			);
     	}
-    	List<Object> args = new ArrayList<Object>();
-    	args.add(filtreDate);
-    	args.add(new Boolean(imagePresenteChBox.isSelected()));
+//    	List<Object> args = new ArrayList<Object>();
+//    	args.add(filtreDate);
+//    	args.add(new Boolean(imagePresenteChBox.isSelected()));
     	this.setChanged();
-    	this.notifyObservers(args);
-    	this.fermerFenetre(event);
+    	this.notifyObservers(
+    			new Object[]{
+    					filtreDate,
+    					filtreDateChBox.isSelected(),
+    					imagePresenteChBox.isSelected()
+    			});
+    	this.fenetre.hide();
     }
 
     @FXML
@@ -138,34 +140,38 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
     	dateFiltrePicker.setEditable(false);
     }
     
-    private void setValeursDeDateParDefaut() {
-    	typeFiltreDateComBox.getSelectionModel().select("après le");
-    	typeDateComBox.getSelectionModel().select("Mot saisi");
-    	dateFiltrePicker.setValue(LocalDate.now());
+    public void setFenetre(Window fenetre) {
+    	this.fenetre = fenetre;
     }
     
-    private void setVeleurImageParDefaut() {
-    	imagePresenteChBox.setSelected(false);
-    }
-    
-    private void setValeursParDefaut() {
-    	setValeursDeDateParDefaut();
-    	setVeleurImageParDefaut();
-    }
+//    private void setValeursDeDateParDefaut() {
+//    	typeFiltreDateComBox.getSelectionModel().select("après le");
+//    	typeDateComBox.getSelectionModel().select("Mot saisi");
+//    	dateFiltrePicker.setValue(LocalDate.now());
+//    }
+//    
+//    private void setVeleurImageParDefaut() {
+//    	imagePresenteChBox.setSelected(false);
+//    }
+//    
+//    private void setValeursParDefaut() {
+//    	setValeursDeDateParDefaut();
+//    	setVeleurImageParDefaut();
+//    }
     
     public void setValeurSelonFiltre(FiltreDeRecherche filtreReference) {
-    	if (filtreReference.estNull()) {
-    		setValeursParDefaut();
-    	} else {
-    		FiltreParDate filtreDate = filtreReference.getFiltreParDate();
-    		if (filtreDate != null) {
-    			setValeursDeDate(filtreDate);
-    			this.filtreDateChBox.setSelected(true);
-    		} else {
-    			setValeursDeDateParDefaut();
-    		}
+//    	if (filtreReference.estNull()) {
+//    		setValeursParDefaut();
+//    	} else {
+//    		FiltreParDate filtreDate = filtreReference.getFiltreParDate();
+//    		if (filtreDate != null) {
+    			this.setValeursDeDate(filtreReference.getFiltreParDate());
+    			this.filtreDateChBox.setSelected(filtreReference.filtreParDateEstActif());
+//    		} else {
+//    			setValeursDeDateParDefaut();
+//    		}
     		this.imagePresenteChBox.setSelected(filtreReference.getDoitContenirImage());
-    	}
+//    	}
     	
 
     }

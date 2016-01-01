@@ -18,11 +18,13 @@ import javafx.beans.property.BooleanProperty;
  *
  */
 public class FiltreDeRecherche implements Predicate<Mot> {
-		
+	
+	private boolean filtreParDateActif;
 	private String expressionDeDepart;
 	private Pattern regex;
 	private FiltreParDate filtreParDate;
-	private boolean chercherDansLeContenu;
+	private boolean chercherDansLeContenuDemande;
+	private boolean chercherDansLeContenuEffectif;
 	private boolean doitContenirUneImage;
 	
 	public static final int MIN_CHAR_RECH_CONTENU = 3;
@@ -40,12 +42,15 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	public FiltreDeRecherche (String chaine, boolean chercherDansLeContenuDuMot) 
 			throws Exception {
 		this.setExpression(chaine, chercherDansLeContenuDuMot);
-		this.filtreParDate = null;
+		this.filtreParDate = FiltreParDate.getDefault();
 		this.doitContenirUneImage = false;
+		this.filtreParDateActif = false;
 	}
 	
 	public void setExpression(String text, boolean paramContenu) throws Exception {
-		if (paramContenu && text.length() < MIN_CHAR_RECH_CONTENU) {
+		this.chercherDansLeContenuDemande = paramContenu;
+		
+		if (!this.validerExpression(text)) {
 			throw new Exception("L'expression utilisée pour la recherche "
 					+ "dans le contenu doit avoir une longueur minimale "
 					+ "de trois caractères.");
@@ -54,14 +59,13 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 		
 		this.expressionDeDepart = text;
 		
-		if (this.expressionDeDepart.contains("*") ||
-				this.expressionDeDepart.contains("?")) {
-			this.chercherDansLeContenu = true;
+		if (FiltreDeRecherche.contientDesJokers(expressionDeDepart)) {
+			this.chercherDansLeContenuEffectif = true;
 			text = convertWildcardsToRegex(text);
 		}
 		
-		if (this.chercherDansLeContenu) {
-			if (!paramContenu) {
+		if (this.chercherDansLeContenuEffectif) {
+			if (!this.chercherDansLeContenuDemande) {
 				text = "^" + text + "$";
 			}
 			
@@ -77,9 +81,18 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	 * Ajoute un filtre de date au filtre.
 	 * @param filtreDate Filtre de date.
 	 */
-	public void addFiltreParDate(FiltreParDate filtreDate) {
-		this.filtreParDate = filtreDate;
+//	public void addFiltreParDate(FiltreParDate filtreDate) {
+//		this.filtreParDate = filtreDate;
+//	}
+	
+	public void setFiltreParDateActif(boolean valeur) {
+		this.filtreParDateActif = valeur;
 	}
+	
+	public boolean filtreParDateEstActif() {
+		return this.filtreParDateActif;
+	}
+	
 	
 	/**
 	 * Ajoute un filtre pour conserver seulement les 
@@ -126,7 +139,7 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	 * @return True si valide.
 	 */
 	private boolean validerLibelle(Mot mot) {
-		if (this.chercherDansLeContenu) {
+		if (this.chercherDansLeContenuEffectif) {
 			return this.regex.matcher(mot.getMot()).find();
 		} else if (!this.expressionDeDepart.isEmpty()) {
 			return mot.getMot().equals(this.expressionDeDepart);
@@ -157,7 +170,7 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 	
 	public String toString() {
-		if (this.chercherDansLeContenu) {
+		if (this.chercherDansLeContenuEffectif) {
 			return regex.toString() + " dans le contenu";
 		} else {
 			return this.expressionDeDepart + " expression exacte";
@@ -165,7 +178,10 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 	
 	public boolean estNull() {
-		return this.expressionDeDepart.isEmpty() && !this.hasFiltreParDateOuParImage();
+		return (this.expressionDeDepart.isEmpty() ||
+				this.expressionDeDepart.equals("*") 
+				) && 
+				!this.hasFiltreParDateOuParImage();
 	}
 	
 	public static FiltreDeRecherche getNull() {
@@ -178,17 +194,17 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 
 	public boolean rechercheDansLeContenu() {
-		return this.chercherDansLeContenu;
+		return this.chercherDansLeContenuEffectif;
 	}
 
 	public boolean hasFiltreParDateOuParImage() {
-		return this.doitContenirUneImage || this.filtreParDate != null;
+		return this.doitContenirUneImage || this.filtreParDateEstActif();
 	}
 
 	public String getDefinition() {
 		List<String> filtres = new ArrayList<>();
 			
-		if (this.filtreParDate != null) {
+		if (this.filtreParDateActif) {
 			filtres.add(this.filtreParDate.toString());
 		}
 		
@@ -214,15 +230,26 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 		return filtreString;
 	}
 
-	public String getTypeFiltreString() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public FiltreParDate getFiltreParDate() {
 		return this.filtreParDate;
 	}
+
+	public void setFiltreParDate(FiltreParDate filtreParDate) {
+		this.filtreParDate = filtreParDate;
+	}
+
+	public boolean demandeRechercheDansContenu() {
+		return this.chercherDansLeContenuDemande;
+	}
+
+	public boolean validerExpression(String expression) {
+		return !this.chercherDansLeContenuDemande || 
+				expression.length() >= MIN_CHAR_RECH_CONTENU;
+	}
 	
+	public static boolean contientDesJokers(String text) {
+		return text.contains("*") || text.contains("?");
+	}
 	
 
 }

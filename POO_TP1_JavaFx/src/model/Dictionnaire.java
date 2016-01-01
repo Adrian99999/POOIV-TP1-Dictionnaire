@@ -54,10 +54,8 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	public void setMaxMotDef(String maxProperty) {
 		maxMotsDef = Integer.parseInt(maxProperty);
 	}
-	
-	
 
-	
-
-		
+	public void ajouter(Mot mot) {
+		this.put(mot.getMot(), mot);
+	}
 }
