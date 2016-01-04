@@ -30,7 +30,6 @@
                         <Text id="filtreDefinition" fx:id="definitionFiltreText" strokeType="OUTSIDE" strokeWidth="0.0" text="Définition du filtre du filtre sdfsdf  sdf  sdf sd f sd f" />
                      </children>
                   </VBox>
-                  <Button fx:id="buttonRechercher" mnemonicParsing="false" onAction="#rechercher" styleClass="lion-default" text="Rechercher" />
                   <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>

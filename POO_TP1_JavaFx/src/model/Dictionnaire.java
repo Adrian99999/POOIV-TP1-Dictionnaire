@@ -2,11 +2,14 @@ package model;
 
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @SuppressWarnings("serial")
@@ -29,26 +32,29 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	
 	@SuppressWarnings("unchecked")
 	public List<String> rechercher(FiltreDeRecherche parametresDeRecherche) {
-		List<String> resultat;
+		Stream<Mot> resultat;
 		
-		if (parametresDeRecherche.estNull()) {
-			resultat = new ArrayList<String>(this.keySet());
-		} else if (!parametresDeRecherche.rechercheDansLeContenu() && 
-				!parametresDeRecherche.getExpression().isEmpty()) {
-			resultat = new ArrayList<String>();
-			Mot mot = this.get(parametresDeRecherche.getExpression());
-			if (mot != null && parametresDeRecherche.test(mot)) {
-				resultat.add(mot.getMot());
+		if (parametresDeRecherche.estNull()) 
+		{
+			resultat = this.values().stream();
+		} 
+		else if (parametresDeRecherche.rechercheLeMotExacte()) 
+		{
+			List<Mot> liste = new ArrayList<>();
+			String motRecherche = parametresDeRecherche.getExpression();
+			Mot motTrouve = this.get(motRecherche);
+			if (motTrouve != null) {
+				liste.add(motTrouve);
 			}
-		} else {
-			List<Object> liste = this.values()
-									.stream()
-									.filter(parametresDeRecherche)
-									.map(Mot::getMot)
-									.collect(Collectors.toList());
-			resultat = (List<String>) (Object) liste;
+			resultat = liste.stream().filter(parametresDeRecherche);
+		} 
+		else 
+		{
+			resultat = this.values()
+						.stream()
+						.filter(parametresDeRecherche);
 		}
-		return resultat;
+		return resultat.map(Mot::getMot).collect(Collectors.toList());
 	}
 
 	public void setMaxMotDef(String maxProperty) {
@@ -56,6 +62,6 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	}
 
 	public void ajouter(Mot mot) {
-		this.put(mot.getMot(), mot);
+		this.put(mot.getMot().toLowerCase(), mot);
 	}
 }

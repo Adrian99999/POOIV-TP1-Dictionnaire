@@ -22,7 +22,7 @@ public class Mot
 		return mot;
 	}
 	
-	public String getCapMot() {
+	public String toString() {
 		return Mot.capitalize(this.mot);
 	}
 	

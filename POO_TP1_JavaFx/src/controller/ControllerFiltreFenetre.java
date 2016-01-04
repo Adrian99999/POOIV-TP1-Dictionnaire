@@ -44,7 +44,7 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
     	affichageTypeDate.put("Mot saisi", FILTRE_PAR_DATE_DE.SAISIE);
 	}	
 	
-	private FiltreDeRecherche filtre = FiltreDeRecherche.getNull();
+	private FiltreDeRecherche filtre = FiltreDeRecherche.getDefault();
 	private Window fenetre;
 	
     @FXML
@@ -105,7 +105,7 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
-		bindControls();
+//		bindControls();
 		
 		afficherValeurs();
 		
@@ -114,10 +114,10 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
 		
 		}
     
-    private void bindControls() {
-    	typeFiltreDateComBox.disableProperty().bind(filtreDateChBox.selectedProperty().not());
-		typeDateComBox.disableProperty().bind(filtreDateChBox.selectedProperty().not());
-		dateFiltrePicker.disableProperty().bind(filtreDateChBox.selectedProperty().not());
+//    private void bindControls() {
+//    	typeFiltreDateComBox.disableProperty().bind(filtreDateChBox.selectedProperty().not());
+//		typeDateComBox.disableProperty().bind(filtreDateChBox.selectedProperty().not());
+//		dateFiltrePicker.disableProperty().bind(filtreDateChBox.selectedProperty().not());
 //		appliquerBtn.disableProperty()
 //			.bind(
 //					filtreDateChBox.selectedProperty().not()
@@ -125,8 +125,8 @@ public class ControllerFiltreFenetre extends Observable implements Initializable
 //					imagePresenteChBox.selectedProperty().not()
 //					)
 //			);
-
-    }
+//
+//    }
     
     private void afficherValeurs() {
     	typeFiltreDateComBox.setItems(

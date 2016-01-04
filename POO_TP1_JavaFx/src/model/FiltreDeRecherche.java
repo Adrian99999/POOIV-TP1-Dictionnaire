@@ -11,21 +11,28 @@ import java.util.stream.Collectors;
 import model.FiltreParDate.FILTRE_PAR_DATE_DE;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Classe qui gère le filtre des mots lors de la recherche
  * @author François Lefebvre et Adrian Pinzaru
  *
  */
-public class FiltreDeRecherche implements Predicate<Mot> {
+public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot> {
 	
 	private boolean filtreParDateActif;
-	private String expressionDeDepart;
-	private Pattern regex;
-	private FiltreParDate filtreParDate;
-	private boolean chercherDansLeContenuDemande;
 	private boolean chercherDansLeContenuEffectif;
 	private boolean doitContenirUneImage;
+	private Pattern regex;
+	private FiltreParDate filtreParDate;
+	private StringProperty expressionDeDepart = new SimpleStringProperty("");
+	private BooleanProperty rechercheDansLeContenuDemande = new SimpleBooleanProperty(false);
+	private BooleanProperty recherchePermiseDansContenu = new SimpleBooleanProperty();
+	private BooleanProperty rechercheOuverte = new SimpleBooleanProperty();
 	
 	public static final int MIN_CHAR_RECH_CONTENU = 3;
 	
@@ -39,42 +46,51 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	 * le contenu du mot ou seulement à partir du début.
 	 * @throws Exception 
 	 */
-	public FiltreDeRecherche (String chaine, boolean chercherDansLeContenuDuMot) 
-			throws Exception {
-		this.setExpression(chaine, chercherDansLeContenuDuMot);
+	public FiltreDeRecherche () {
 		this.filtreParDate = FiltreParDate.getDefault();
 		this.doitContenirUneImage = false;
 		this.filtreParDateActif = false;
+		this.expressionDeDepart.set("");
+		this.rechercheDansLeContenuDemande.set(false);
+		this.rechercheOuverte.set(false);
+		
+		this.expressionDeDepart.addListener(this);
+		this.rechercheDansLeContenuDemande.addListener(this);
+		this.rechercheOuverte.addListener(this);
+		
+		recherchePermiseDansContenu.bind(
+				expressionDeDepart.length().greaterThanOrEqualTo(
+						MIN_CHAR_RECH_CONTENU
+						)
+				);
 	}
 	
-	public void setExpression(String text, boolean paramContenu) throws Exception {
-		this.chercherDansLeContenuDemande = paramContenu;
+	public void updateRegex() {
 		
-		if (!this.validerExpression(text)) {
-			throw new Exception("L'expression utilisée pour la recherche "
-					+ "dans le contenu doit avoir une longueur minimale "
-					+ "de trois caractères.");
-		}
+		String expression = this.expressionDeDepart.get().toLowerCase() + 
+				(this.rechercheOuverte.get() ? "*" : "");
 		
-		
-		this.expressionDeDepart = text;
-		
-		if (FiltreDeRecherche.contientDesJokers(expressionDeDepart)) {
+		if (FiltreDeRecherche.contientDesJokers(expression)) {
 			this.chercherDansLeContenuEffectif = true;
-			text = convertWildcardsToRegex(text);
+			expression = convertWildcardsToRegex(expression);
 		}
 		
 		if (this.chercherDansLeContenuEffectif) {
-			if (!this.chercherDansLeContenuDemande) {
-				text = "^" + text + "$";
+			if (!this.rechercheDansLeContenuDemande.get()) {
+				expression = "^" + expression + "$";
 			}
 			
-			this.regex = Pattern.compile(text);
+			this.regex = Pattern.compile(expression);
+			System.out.println("update " + expression);
 		}
 	}
 	
+	public BooleanProperty recherchePermiseDansContenuProperty() {
+		return recherchePermiseDansContenu;
+	}
+	
 	public String getExpression() {
-		return this.expressionDeDepart;
+		return this.expressionDeDepart.get();
 	}
 	
 	/**
@@ -141,7 +157,7 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	private boolean validerLibelle(Mot mot) {
 		if (this.chercherDansLeContenuEffectif) {
 			return this.regex.matcher(mot.getMot()).find();
-		} else if (!this.expressionDeDepart.isEmpty()) {
+		} else if (!this.expressionDeDepart.get().isEmpty()) {
 			return mot.getMot().equals(this.expressionDeDepart);
 		} else {
 			return true;
@@ -178,19 +194,14 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 	
 	public boolean estNull() {
-		return (this.expressionDeDepart.isEmpty() ||
-				this.expressionDeDepart.equals("*") 
+		return (this.expressionDeDepart.get().isEmpty() ||
+				this.expressionDeDepart.get().equals("*") 
 				) && 
 				!this.hasFiltreParDateOuParImage();
 	}
 	
-	public static FiltreDeRecherche getNull() {
-		try {
-			return new FiltreDeRecherche("", false);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public static FiltreDeRecherche getDefault() {
+		return new FiltreDeRecherche();
 	}
 
 	public boolean rechercheDansLeContenu() {
@@ -239,17 +250,44 @@ public class FiltreDeRecherche implements Predicate<Mot> {
 	}
 
 	public boolean demandeRechercheDansContenu() {
-		return this.chercherDansLeContenuDemande;
-	}
-
-	public boolean validerExpression(String expression) {
-		return !this.chercherDansLeContenuDemande || 
-				expression.length() >= MIN_CHAR_RECH_CONTENU;
+		return this.rechercheDansLeContenuDemande.get();
 	}
 	
 	public static boolean contientDesJokers(String text) {
 		return text.contains("*") || text.contains("?");
 	}
 	
+	public boolean rechercheLeMotExacte() {
+		return !this.rechercheDansLeContenu() && !this.getExpression().isEmpty();
+	}
 
+	public boolean validePourLaRecherche() {
+		return this.recherchePermiseDansContenu.get();
+	}
+
+//	public void setExpression(String expression) {
+//		this.expressionDeDepart.set(expression);
+//	}
+//
+//	public void setRechercheDansLeContenu(Boolean b) {
+//		this.rechercheDansLeContenuDemande.set(b);
+//	}
+//	
+	public void setRechercheOuverte(boolean b) {
+		this.rechercheOuverte.set(b);
+	}
+	
+	public StringProperty expressionProperty() {
+		return this.expressionDeDepart;
+	}
+
+	@Override
+	public void changed(ObservableValue observable, Object oldValue,
+			Object newValue) {
+		updateRegex();
+	}
+	
+	public BooleanProperty rechercheDansContenuDemandeProperty() {
+		return this.rechercheDansLeContenuDemande;
+	}
 }
