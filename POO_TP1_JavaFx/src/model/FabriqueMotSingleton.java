@@ -77,7 +77,7 @@ public class FabriqueMotSingleton
 				while((line = br.readLine()) != null)
 				{
 //					System.out.println(line);
-					dictionnaire.put(line, new Mot(line));
+					dictionnaire.ajouter(new Mot(line));
 				}
 				
 				br.close();

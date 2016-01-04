@@ -5,7 +5,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="319.0" prefWidth="477.0" styleClass="background-image" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="319.0" prefWidth="477.0" styleClass="background-image" stylesheets="vue/style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
    <children>
       <Label styleClass="label-bright" text="Filtre">
          <padding>
@@ -13,9 +13,9 @@
          </padding></Label>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" text="Date" />
-            <ComboBox fx:id="typeDateComBox" disable="true" prefWidth="150.0" />
-            <ComboBox fx:id="typeFiltreDateComBox" disable="true" prefWidth="150.0" />
+            <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" text="Date" />
+            <ComboBox fx:id="typeDateComBox" prefWidth="150.0" />
+            <ComboBox fx:id="typeFiltreDateComBox" prefWidth="150.0" />
             <DatePicker fx:id="dateFiltrePicker" />
          </children>
          <padding>
@@ -32,8 +32,8 @@
       </HBox>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
          <children>
-            <Button fx:id="annulerBtn" mnemonicParsing="false" styleClass="lion-default" text="Annuler" />
-            <Button fx:id="appliquerBtn" mnemonicParsing="false" styleClass="lion-default" text="Appliquer" />
+            <Button fx:id="annulerBtn" mnemonicParsing="false" onAction="#annuler" styleClass="lion-default" text="Annuler" />
+            <Button fx:id="appliquerBtn" mnemonicParsing="false" onAction="#appliquer" styleClass="lion-default" text="Appliquer" />
          </children>
          <padding>
             <Insets left="20.0" />

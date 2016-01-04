@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.paint.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
@@ -7,13 +8,13 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="500.0" prefWidth="620.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
+<BorderPane prefHeight="500.0" prefWidth="767.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerDictionaire">
    <center>
-      <SplitPane dividerPositions="0.3851132686084142" prefHeight="396.0" prefWidth="527.0" styleClass="background-image" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.396078431372549" prefHeight="396.0" prefWidth="527.0" styleClass="background-image" BorderPane.alignment="CENTER">
         <items>
             <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                <children>
-                  <Label prefHeight="17.0" prefWidth="225.0" styleClass="label-bright" text="Recherche">
+                  <Label prefHeight="17.0" prefWidth="225.0" styleClass="titre1" text="Recherche">
                      <font>
                         <Font name="System Italic" size="22.0" />
                      </font>
@@ -21,9 +22,14 @@
                         <Insets left="20.0" />
                      </padding>
                   </Label>
-                  <TextField fx:id="champRecherche" onAction="#rechercherLeMotComplet" onKeyTyped="#rechercherAChaqueLettre" opacity="0.85" />
-                  <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" styleClass="label-bright" text="Expression dans le mot" />
-                  <CheckBox fx:id="filtreChBox" mnemonicParsing="false" onAction="#gererFiltreChBox" styleClass="label-bright" text="Filtrer" />
+                  <TextField fx:id="champRecherche" onKeyReleased="#gererTouchesDuChampDeRecherche" opacity="0.85" />
+                  <VBox id="zoneOptions">
+                     <children>
+                        <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" text="Expression dans le mot" />
+                        <Hyperlink onAction="#gererFiltreHyperlink" text="Filtre" />
+                        <Text id="filtreDefinition" fx:id="definitionFiltreText" strokeType="OUTSIDE" strokeWidth="0.0" text="Définition du filtre du filtre sdfsdf  sdf  sdf sd f sd f" />
+                     </children>
+                  </VBox>
                   <ListView fx:id="listViewMots" opacity="0.85" prefHeight="331.0" prefWidth="215.0" />
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                      <children>
@@ -38,9 +44,8 @@
             </VBox>
             <VBox fx:id="sectionDefinition" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
                <children>
-                  <TextField fx:id="textFieldAffichageMot" editable="false" onMouseClicked="#gererCliqueSurMot" opacity="0.85" />
-                  <Label alignment="CENTER" styleClass="label-bright" text="Définition :" />
-                  <TextArea fx:id="textAreaDifinition" onMouseClicked="#gererCliqueDefinition" opacity="0.85" prefWidth="332.0">
+                  <TextField id="titreMot" fx:id="textFieldAffichageMot" editable="false" onMouseClicked="#gererCliqueSurMot" opacity="0.85" text="Mot" />
+                  <TextArea fx:id="textAreaDifinition" editable="false" onMouseClicked="#gererCliqueSurDefinition" opacity="0.85" prefWidth="332.0">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin></TextArea>

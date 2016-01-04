@@ -11,7 +11,7 @@ public class Mot
 	private LocalDate dateModificationMot;
 	
 	public Mot(String pMot) {
-		this.mot = pMot;
+		this.mot = pMot.toLowerCase();
 		this.dateSaisieMot = LocalDate.now();
 		this.definition = "";
 		this.nomImageAssocie = "";
@@ -21,6 +21,11 @@ public class Mot
 	public String getMot() {
 		return mot;
 	}
+	
+	public String toString() {
+		return Mot.capitalize(this.mot);
+	}
+	
 	public void setMot(String mot) {
 		this.mot = mot;
 	}
@@ -53,5 +58,10 @@ public class Mot
 	public boolean hasImage() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	private static String capitalize(String original) {
+		return original.substring(0, 1).toUpperCase() + original.substring(1);
+
 	}
 }
