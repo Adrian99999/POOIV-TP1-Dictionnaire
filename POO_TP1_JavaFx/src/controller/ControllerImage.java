@@ -13,13 +13,13 @@ import javafx.scene.input.TransferMode;
 
 	    @FXML
 	    private ImageView imageView;
-
+	    
 	    @FXML
 	    void onDragDetected(MouseEvent event) {
 	    	Dragboard dragboard =((ImageView)event.getSource()).startDragAndDrop(TransferMode.COPY);
 	    	ClipboardContent content = new ClipboardContent();
 	    	content.putImage(imageView.getImage());
-	    	content.putString("un oiseau");
+	    	content.putString("mot");
 	    	dragboard.setContent(content);
 	    	
 	    	event.consume();
@@ -64,6 +64,7 @@ import javafx.scene.input.TransferMode;
 	    		event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 	    	}
 	    }
+	   
 
 	}
 

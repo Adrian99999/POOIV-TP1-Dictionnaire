@@ -3,7 +3,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.image.*?>
 
-<ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" onDragDetected="#onDragDetected" onDragDone="#onDragDone" onDragDropped="#onDragDropped" onDragEntered="#onDragEntered" onDragExited="#onDragExited" onDragOver="#onDragOver" pickOnBounds="true" preserveRatio="true" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerImage">
+<ImageView fx:id="imageView" accessibleText="L'image du mot" fitHeight="150.0" fitWidth="200.0" onDragDetected="#onDragDetected" onDragDone="#onDragDone" onDragDropped="#onDragDropped" onDragEntered="#onDragEntered" onDragExited="#onDragExited" onDragOver="#onDragOver" pickOnBounds="true" preserveRatio="true" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerImage">
    <image>
       <Image url="@dictionnaire.png" />
    </image>

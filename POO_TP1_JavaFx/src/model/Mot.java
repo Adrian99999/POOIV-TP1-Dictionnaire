@@ -6,7 +6,7 @@ public class Mot
 {
 	private String mot;
 	private String definition;
-	private String nomFichier;
+	private String nomImageAssocie;
 	private LocalDate dateSaisieMot;
 	private LocalDate dateModificationMot;
 	
@@ -14,7 +14,7 @@ public class Mot
 		this.mot = pMot;
 		this.dateSaisieMot = LocalDate.now();
 		this.definition = "";
-		this.nomFichier = "";
+		this.nomImageAssocie = "";
 		this.dateModificationMot = null;
 	}
 	
@@ -31,10 +31,11 @@ public class Mot
 		this.definition = definition;
 	}
 	public String getNomFichier() {
-		return nomFichier;
+		return nomImageAssocie;
 	}
-	public void setNomFichier(String nomFichier) {
-		this.nomFichier = nomFichier;
+	public void setImageAssocieAuMot(String nomFichier) {
+		//this.nomImageAssocie = this.getClass().getClassLoader().getResource(nomFichier).toString();
+		this.nomImageAssocie = nomFichier;
 	}
 	public LocalDate getDateSaisieMot() {
 		return dateSaisieMot;

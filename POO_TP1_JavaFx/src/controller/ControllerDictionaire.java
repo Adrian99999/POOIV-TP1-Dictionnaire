@@ -17,6 +17,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -30,6 +31,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -84,7 +89,9 @@ public class ControllerDictionaire implements Initializable{
     	
     @FXML
     private MenuItem fermerApplication;
-
+    
+    @FXML
+    private Pane conteneurImage;
     @FXML
     void ajouterMot(ActionEvent event) {
     	System.out.println(buttonAjouter);
@@ -97,18 +104,27 @@ public class ControllerDictionaire implements Initializable{
 
     @FXML
     void modifierMot(ActionEvent event) {
-    	//si le mot n'a pas été modiffié
+    	
+    	//si le text du mot n'a pas été modiffié
     	if(listViewMots.getSelectionModel().getSelectedItem().equals(textFieldAffichageMot.getText().toString()))
     	{
     		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDefinition(textAreaDifinition.getText());
     		dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()).setDateModificationMot(LocalDate.now());
-    		
+    		//ImageView
+    	}
+    	else
+    	{
+    		Mot newMot = new Mot(textFieldAffichageMot.getText());
+    		newMot.setDateSaisieMot(LocalDate.now());
+    		newMot.setDefinition(textAreaDifinition.getText());
+    		//ImageView
+    		dictionnaire.put(textFieldAffichageMot.getText(),newMot );
     	}
     }
 
     @FXML
     void annulerModification(ActionEvent event) {
-
+    	afficherInfoMot(dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem()));
     }
 
     @FXML
@@ -192,6 +208,7 @@ public class ControllerDictionaire implements Initializable{
     		textFieldDateSaisieMot.setText(mot.getDateSaisieMot().toString());
     		//textFieldFichierMot.setText(mot.getNomFichier());
     		textAreaDifinition.setText(mot.getDefinition());
+    		
     		//pour ne pas avoir d'erreurs 
     		Platform.runLater(new Runnable() {
     		    @Override
@@ -209,29 +226,34 @@ public class ControllerDictionaire implements Initializable{
     		//textFieldFichierMot.setText("");
     		textAreaDifinition.setText("");
     	}
+    	activerModificationTextMot();
+    }
+    public void activerModificationTextMot()
+    {
+    	//activer la modification du mot avec double click
+    	textFieldAffichageMot.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if(mouseEvent.getButton().equals(MouseButton.PRIMARY))
+				{
+					if(mouseEvent.getClickCount() == 2)
+					{
+						textFieldAffichageMot.setEditable(true);
+					}
+				}
+			}
+    		
+    	});
     }
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
-		assert champRecherche != null : "fx:id=\"champRecherche\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert dansLeMotChBox != null : "fx:id=\"dansLeMotChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert filtreChBox != null : "fx:id=\"filtreChBox\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert listViewMots != null : "fx:id=\"listViewMots\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonAjouter != null : "fx:id=\"buttonAjouter\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonEffacer != null : "fx:id=\"buttonEffacer\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert sectionDefinition != null : "fx:id=\"sectionDefinition\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldAffichageMot != null : "fx:id=\"textFieldAffichageMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textAreaDifinition != null : "fx:id=\"textAreaDifinition\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldDateSaisieMot != null : "fx:id=\"textFieldDateSaisieMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert textFieldDateModificationMot != null : "fx:id=\"textFieldDateModificationMot\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonAnnuler != null : "fx:id=\"buttonAnnuler\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert buttonModifier != null : "fx:id=\"buttonModifier\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        assert fermerApplication != null : "fx:id=\"fermerApplication\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
-        
+		//assert champRecherche != null : "fx:id=\"champRecherche\" was not injected: check your FXML file 'Dictionaire_view.fxml'.";
+       
 		lancerLeChargementDuDictionnaire();
 
 		lierLesElements();
-
 	}
 	
 	private void lierLesElements() {
@@ -275,7 +297,7 @@ public class ControllerDictionaire implements Initializable{
 				buttonEffacer.setDisable(newValue != null);
 				System.out.println(newValue);
 				textFieldAffichageMot.setText(newValue);
-				
+				textFieldAffichageMot.setEditable(false);
 				afficherInfoMot(dictionnaire.get(newValue));
 			}
 		});
