@@ -49,12 +49,12 @@
 }
 
 .hyperlink {
-    -fx-text-fill: blue;
+    -fx-text-fill: lightblue;
     -fx-underline: true;
 }
 
 .hyperlink:hover {
-    -fx-text-fill: lightblue;
+    -fx-text-fill: white;
 }
 
 #titreMot {
@@ -64,11 +64,18 @@
       -fx-background-color:rgba(255, 255, 255, 0.5);
 }
 
-#titreMot:readonly, .text-area:readonly, .text-area:readonly .viewport, .text-area:readonly .content{
+#titreMot:readonly, .text-area:readonly, .text-area:readonly .viewport, .text-area:readonly .content {
     -fx-background-color: transparent;
     -fx-text-fill: white;
 }
 /**/
+
+.texteDate {
+    -fx-background-color: transparent;
+    -fx-text-fill: lightgrey;
+    -fx-font-style: italic;
+}
+
 #filtreDefinition {
     -fx-text-fill: red;
 }
@@ -77,9 +84,11 @@
     -fx-padding: 3pt;
 }
 
-#zoneOptions {
-    -fx-background-color: rgba(0, 0, 0, .25);
-    -fx-border-color: grey;
+.zoneOmbragee {
+    -fx-background-color: rgba(0, 0, 0, .70);
+    -fx-border-color: darkgrey;
+    -fx-border-radius: 5pt;
+    -fx-background-radius: 5pt;
 }
 
 
