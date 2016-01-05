@@ -145,6 +145,7 @@ public class ControllerDictionaire implements Initializable {
 		setOnDisablePropertyChangePourDansLeMotChexbox();
 		listViewMots.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
 			listViewMots.requestFocus();
+			listViewMots.getSelectionModel().select(-1);
 			});
 		this.textFieldAffichageMot.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
 			if (!nouvelleValeurDeFocus) {
@@ -163,6 +164,11 @@ public class ControllerDictionaire implements Initializable {
 					buttonAnnuler.setDisable(false);
 					this.textAreaDifinition.setStyle("-fx-text-fill: white");
 				}
+				if (this.textAreaDifinition.getText().isEmpty()) {
+					setDefaultDefinition();
+				} else {
+					this.textAreaDifinition.setStyle("-fx-text-fill: white");
+				}
 			}
 		});
 		
@@ -174,7 +180,7 @@ public class ControllerDictionaire implements Initializable {
 				@Override
 				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 					buttonEffacer.setDisable(newValue != null);
-					if (listViewMots.isFocused()) {
+					if (listViewMots.isFocused() && newValue != null) {
 						afficherInfoMot(dictionnaire.get(newValue));
 						buttonEffacer.setDisable(false);
 					}
@@ -355,18 +361,27 @@ public class ControllerDictionaire implements Initializable {
 	
     private void setValeursMot(Mot mot) {
     	textFieldAffichageMot.setText(mot.toString());
-		String dateModification = mot.getDateModificationMot() == null ?
-    				"" : mot.getDateModificationMot().toString();
-		textFieldDateModificationMot.setText(dateModification);
-		textFieldDateSaisieMot.setText(mot.getDateSaisieMot().toString());
+    	textFieldDateSaisieMot.setText(
+    			"Saisi le " + mot.getDateSaisieMot().toString() + ". ");
+    	textFieldDateSaisieMot.appendText(
+    			mot.getDateModificationMot() == null ?
+    					"Jamais modifié." : 
+    						"Modifié le " + mot.getDateModificationMot().toString() +
+    						"."
+    			);
 		if (mot.getDefinition().isEmpty()) {
-			textAreaDifinition.setText(DEFINITION_DEFAUT);
-			textAreaDifinition.setStyle("-fx-text-fill: grey");
+			setDefaultDefinition();
 		} else {
 			textAreaDifinition.setText(mot.getDefinition());
+			textAreaDifinition.setStyle("-fx-text-fill: white");
 		}
 		
 	}
+    
+    private void setDefaultDefinition(){
+    	textAreaDifinition.setText(DEFINITION_DEFAUT);
+		textAreaDifinition.setStyle("-fx-text-fill: grey");
+    }
 	
     private void setAffichageMot() {
 		sectionDefinition.setVisible(true);
@@ -474,23 +489,28 @@ public class ControllerDictionaire implements Initializable {
 
     @FXML
     void gererCliqueSurMot(MouseEvent event) {
-    	gererCliqueSurTextInputControl(event);
+    	gererCliqueSurTextInputControl(event, false);
     }
     
     @FXML
     void gererCliqueSurDefinition(MouseEvent event) {
-    	gererCliqueSurTextInputControl(event);
+    	gererCliqueSurTextInputControl(event, true);
     }
     
-    private void gererCliqueSurTextInputControl(MouseEvent event) {
+    private void gererCliqueSurTextInputControl(MouseEvent event, boolean effacement) {
     	if(event.getButton().equals(MouseButton.PRIMARY))
 		{
 			if(event.getClickCount() == 2)
 			{
-				System.out.println("double click");
-				((TextInputControl) event.getSource()).setEditable(true);
+				TextInputControl tic = (TextInputControl) event.getSource();
+				tic.setEditable(true);
+			
+				if (effacement && this.textAreaDifinition.getText().equals(DEFINITION_DEFAUT)) {
+					tic.clear();
+				}
 			}
 		}
+    	
     }
 
     @FXML
