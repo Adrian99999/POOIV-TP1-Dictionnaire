@@ -104,8 +104,8 @@ public class ControllerDictionaire implements Initializable {
     @FXML
     private Button buttonModifier;
     	
-    @FXML
-    private MenuItem fermerApplication;
+//    @FXML
+//    private MenuItem fermerApplication;
     
     @FXML
     private Text definitionFiltreText;
@@ -159,20 +159,27 @@ public class ControllerDictionaire implements Initializable {
 		this.textAreaDifinition.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
 			if (!nouvelleValeurDeFocus) {
 				this.textAreaDifinition.setEditable(false);
+				this.textAreaDifinition.setText(this.textAreaDifinition.getText().trim());
 				if (isMotAEteModifie()) {
 					buttonModifier.setDisable(false);
 					buttonAnnuler.setDisable(false);
-					this.textAreaDifinition.setStyle("-fx-text-fill: white");
 				}
 				if (this.textAreaDifinition.getText().isEmpty()) {
 					setDefaultDefinition();
 				} else {
-					this.textAreaDifinition.setStyle("-fx-text-fill: white");
+					this.textAreaDifinition.setStyle("");
 				}
 			}
 		});
 		
 		this.textFieldAffichageMot.setOnAction(e -> this.sectionDefinition.requestFocus());
+		
+		this.textAreaDifinition.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ENTER) {
+				this.sectionDefinition.requestFocus();
+				e.consume();
+			}
+		});
 	 }
 	 
 	 private void lierSelectionMotEtAffichage() {
@@ -363,17 +370,18 @@ public class ControllerDictionaire implements Initializable {
     	textFieldAffichageMot.setText(mot.toString());
     	textFieldDateSaisieMot.setText(
     			"Saisi le " + mot.getDateSaisieMot().toString() + ". ");
+    	System.out.println(mot.getDateModificationMot());
     	textFieldDateSaisieMot.appendText(
     			mot.getDateModificationMot() == null ?
     					"Jamais modifié." : 
-    						"Modifié le " + mot.getDateModificationMot().toString() +
+    						"Modifié le " + mot.getDateModificationMot() +
     						"."
     			);
 		if (mot.getDefinition().isEmpty()) {
 			setDefaultDefinition();
 		} else {
 			textAreaDifinition.setText(mot.getDefinition());
-			textAreaDifinition.setStyle("-fx-text-fill: white");
+			textAreaDifinition.setStyle("");
 		}
 		
 	}
@@ -406,7 +414,7 @@ public class ControllerDictionaire implements Initializable {
     void modifierMot(ActionEvent event) {
     	Mot motAAfficher;
     	//si le text du mot n'a pas été modiffié
-    	if(!isMotAEteModifie())
+    	if(!isLibelleMotAEteModifie())
     	{
     		motAAfficher = enregistrerLesModifications();
     	}
@@ -435,6 +443,7 @@ public class ControllerDictionaire implements Initializable {
 		Mot motModifie = dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem());
     	motModifie.setDefinition(textAreaDifinition.getText());
     	motModifie.setDateModificationMot(LocalDate.now());
+    	System.out.println("modif " + motModifie.getDateModificationMot());
 		// TODO Image
 		return motModifie;
 	}
@@ -519,30 +528,9 @@ public class ControllerDictionaire implements Initializable {
     }
     
     @FXML
-    void fermerAppication(ActionEvent event) {
-    	
+    void fermerApplication(ActionEvent event) {
+    	Platform.exit();
     }
-
-//    @FXML
-//    void gererFiltreChBox(ActionEvent event) {
-//    	if (filtreChBox.isSelected()) {
-//    		try {
-//				Pane root = FXMLLoader.load(
-//						ControllerDictionaire.class.getResource(
-//								"../vue/FiltreFenetre.fxml"
-//								)
-//						);
-//				Stage filtreStage = new Stage();
-//	    		filtreStage.setTitle("Filtre");
-//	    		filtreStage.setScene(new Scene(root));
-//	    		filtreStage.show();
-//    		} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//    	} else {
-//    		desactiverLeFiltre();
-//    	}
-//    }
 
     @FXML
     void rechercherAChaqueLettre(ActionEvent event) {

@@ -88,7 +88,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="Fichier">
             <items>
-              <MenuItem fx:id="fermerApplication" mnemonicParsing="false" text="Fermer" />
+              <MenuItem mnemonicParsing="false" onAction="#fermerApplication" text="Fermer" />
             </items>
           </Menu>
         </menus>
