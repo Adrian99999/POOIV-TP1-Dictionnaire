@@ -59,8 +59,7 @@ public class Mot
 	}
 
 	public boolean hasImage() {
-		// TODO Auto-generated method stub
-		return false;
+		return !this.nomImageAssocie.isEmpty();
 	}
 	
 	private static String capitalize(String original) {
