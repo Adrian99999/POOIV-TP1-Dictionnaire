@@ -134,12 +134,17 @@ public class ControllerDictionaire implements Initializable {
 				String libelle = (String) arguments[0];
 				Dragboard dragboard = (Dragboard) arguments[1];
 				
-				if (dragboard.hasImage()) {
-					dictionnaire.get(libelle).setImageAssocieAuMot(dragboard.getUrl());
-				} else if (dragboard.hasContent(ModifiableByDragListCell.DEFINITION)){
+				if (dragboard.hasContent(ModifiableByDragListCell.IMAGE_PATH))
+				{
+					dictionnaire.get(libelle).setImageAssocieAuMot(
+							(String) dragboard
+								.getContent(ModifiableByDragListCell.IMAGE_PATH));
+				} 
+				else if (dragboard.hasContent(ModifiableByDragListCell.DEFINITION))
+				{
 					dictionnaire.get(libelle).setDefinition(
 							(String) dragboard
-							.getContent(ModifiableByDragListCell.DEFINITION)
+								.getContent(ModifiableByDragListCell.DEFINITION)
 							);
 				}
 				
@@ -211,8 +216,15 @@ public class ControllerDictionaire implements Initializable {
 			}
 		});
 		
-		this.imageController.addObserver((observable, args) -> {
-			this.dernierMotAffiche.setImageAssocieAuMot((String) args); 
+//		this.imageController.addObserver((observable, args) -> {
+//			this.dernierMotAffiche.setImageAssocieAuMot((String) args); 
+//		});
+		
+		this.imageController.imageAChangeProperty().addListener((obs, old, ne) -> {
+			if (ne) {
+				buttonModifier.setDisable(false);
+				buttonAnnuler.setDisable(false);
+			}
 		});
 
 	 }
@@ -394,11 +406,44 @@ public class ControllerDictionaire implements Initializable {
        
     private void afficherInfoMot(Mot mot)
     {
-    	if(mot != null)
-    	{
-    		setValeursMot(mot);
-    		setAffichageMot();
-    		this.dernierMotAffiche = mot;
+    	boolean afficherMot = false;
+    	
+    	if (this.isMotAEteModifie()) {
+    		Alert alert = new Alert(AlertType.CONFIRMATION);
+    		alert.setTitle("Enregistrer les modifications");
+    		alert.setHeaderText("Mot " + this.dernierMotAffiche + " modifié.");
+    		alert.setContentText("Voulez-vous les sauvegarder les modifications?");
+    		alert.getButtonTypes().removeAll(
+    				ButtonType.CANCEL, 
+    				ButtonType.OK);
+    		alert.getButtonTypes().addAll(
+    				ButtonType.CANCEL,
+    				ButtonType.NO,
+    				ButtonType.YES);
+    		Optional<ButtonType> response = alert.showAndWait();
+    		if (response.isPresent()) {
+    			if (response.get() == ButtonType.YES) {
+    				enregistrerLesModifications();
+    				afficherMot = true;
+    			} else if (response.get() == ButtonType.NO) {
+    				afficherMot = true;
+    			} else {
+//    				listViewMots.getSelectionModel().select(this.dernierMotAffiche.getMot());
+    				afficherMot = false;
+    			}
+    		}
+    	} else {
+    		afficherMot = true;
+    	}
+    	
+    	if (afficherMot) {
+    		if(mot != null) {
+	    		setValeursMot(mot);
+	        	setAffichageMot();
+	    	} else {
+	    		sectionDefinition.setVisible(false);
+	    	}
+			this.dernierMotAffiche = mot;
     	}
     }
 	
@@ -463,33 +508,52 @@ public class ControllerDictionaire implements Initializable {
     private Mot creerNouveauMot() {
     	Mot newMot = new Mot(textFieldAffichageMot.getText().toLowerCase());
 		newMot.setDateSaisieMot(LocalDate.now());
-		if(!textAreaDifinition.getText().equals(DEFINITION_DEFAUT)) {
+		if(!definitionEstNulle()) {
 			newMot.setDefinition(textAreaDifinition.getText());
 		}
-		// TODO ImageView
+		newMot.setImageAssocieAuMot(imageController.getCheminImage());
 		dictionnaire.ajouter(newMot);
 		return newMot;
 	}
 
 	private Mot enregistrerLesModifications() {
-		Mot motModifie = dictionnaire.get(listViewMots.getSelectionModel().getSelectedItem());
-    	motModifie.setDefinition(textAreaDifinition.getText());
+		Mot motModifie = this.dernierMotAffiche;
+    	motModifie.setDefinition(this.definitionEstNulle() ? "" : textAreaDifinition.getText());
     	motModifie.setDateModificationMot(LocalDate.now());
-    	System.out.println("modif " + motModifie.getDateModificationMot());
-		// TODO Image
+		motModifie.setImageAssocieAuMot(imageController.getCheminImage());
 		return motModifie;
 	}
 
 	private boolean isLibelleMotAEteModifie() {
-    	return !this.dernierMotAffiche.getMot().equals(textFieldAffichageMot.getText().toLowerCase());
+			return !this.dernierMotAffiche.getMot().equals(textFieldAffichageMot.getText().toLowerCase());
     }
 	
 	private boolean isMotAEteModifie() {
-		return isLibelleMotAEteModifie() ||
-				(!this.dernierMotAffiche.getDefinition().equals(textAreaDifinition.getText()) &&
-				!textAreaDifinition.getText().equals(DEFINITION_DEFAUT));
-		// TODO
-		// Ajouter vérification image
+		if (this.dernierMotAffiche != null) {
+			return isLibelleMotAEteModifie() ||
+					definitionAEteModifie() ||
+					imageController.imageAEteModifie();
+		} else {
+			return false;
+		}
+	}
+	
+	private boolean definitionEstNulle() {
+		return textAreaDifinition.getText().equals(DEFINITION_DEFAUT);
+	}
+	
+	private boolean definitionAEteModifie() {
+		String definitionOriginale = this.dernierMotAffiche.getDefinition();
+		
+		if (definitionEstNulle() && definitionOriginale.isEmpty()) {
+			return false;
+		}
+		
+		if (textAreaDifinition.getText().equals(definitionOriginale)) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	@FXML
