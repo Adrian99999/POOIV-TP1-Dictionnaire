@@ -63,6 +63,13 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 						MIN_CHAR_RECH_CONTENU
 						)
 				);
+//		expressionDeDepart.addListener((obs, old, n) -> {
+//			if (n.length() >= MIN_CHAR_RECH_CONTENU) {
+//				recherchePermiseDansContenu.set(true);
+//			} else {
+//				recherchePermiseDansContenu.set(false);
+//			}
+//		});
 	}
 	
 	public void updateRegex() {
@@ -81,7 +88,6 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 			}
 			
 			this.regex = Pattern.compile(expression);
-			System.out.println("update " + expression);
 		}
 	}
 	
@@ -289,5 +295,9 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 	
 	public BooleanProperty rechercheDansContenuDemandeProperty() {
 		return this.rechercheDansLeContenuDemande;
+	}
+
+	public String getRegex() {
+		return regex.pattern();
 	}
 }

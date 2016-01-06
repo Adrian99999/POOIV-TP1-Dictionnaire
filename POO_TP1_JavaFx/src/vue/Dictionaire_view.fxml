@@ -18,9 +18,6 @@
                      <font>
                         <Font name="System Italic" size="22.0" />
                      </font>
-                     <padding>
-                        <Insets left="20.0" />
-                     </padding>
                   </Label>
                   <TextField fx:id="champRecherche" onKeyReleased="#gererTouchesDuChampDeRecherche" opacity="0.85" />
                   <VBox id="zoneOptions" styleClass="zoneOmbragee">
@@ -46,7 +43,10 @@
                <children>
                   <VBox alignment="CENTER" maxHeight="425.0" maxWidth="400.0" spacing="10.0" styleClass="zoneOmbragee">
                      <children>
-                        <TextField id="titreMot" fx:id="textFieldAffichageMot" editable="false" onMouseClicked="#gererCliqueSurMot" opacity="0.85" text="Mot" />
+                        <TextField id="titreMot" fx:id="textFieldAffichageMot" editable="false" onMouseClicked="#gererCliqueSurMot" opacity="0.85" text="Mot">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets></TextField>
                         <TextArea fx:id="textAreaDifinition" editable="false" onMouseClicked="#gererCliqueSurDefinition" opacity="0.85" prefWidth="332.0" text="Définition du mot">
                            <VBox.margin>
                               <Insets />
@@ -54,7 +54,7 @@
                         </TextArea>
                         <Pane nodeOrientation="LEFT_TO_RIGHT" prefHeight="212.0" prefWidth="314.0">
                            <children>
-                              <fx:include source="Image.fxml" />
+                              <fx:include fx:id="image" source="Image.fxml" />
                            </children>
                            <VBox.margin>
                               <Insets left="20.0" right="20.0" top="10.0" />
@@ -88,7 +88,7 @@
         <menus>
           <Menu mnemonicParsing="false" text="Fichier">
             <items>
-              <MenuItem fx:id="fermerApplication" mnemonicParsing="false" text="Fermer" />
+              <MenuItem mnemonicParsing="false" onAction="#fermerApplication" text="Fermer" />
             </items>
           </Menu>
         </menus>

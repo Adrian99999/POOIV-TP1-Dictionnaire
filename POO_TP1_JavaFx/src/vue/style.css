@@ -64,11 +64,18 @@
       -fx-background-color:rgba(255, 255, 255, 0.5);
 }
 
+.text-area:focused {
+	-fx-text-fill: black;
+}
+
 #titreMot:readonly, .text-area:readonly, .text-area:readonly .viewport, .text-area:readonly .content {
     -fx-background-color: transparent;
     -fx-text-fill: white;
 }
-/**/
+
+.menu-item .label{
+	-fx-text-fill: black;
+}
 
 .texteDate {
     -fx-background-color: transparent;
