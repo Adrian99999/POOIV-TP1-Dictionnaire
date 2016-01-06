@@ -2,6 +2,9 @@ package model;
 
 import java.time.LocalDate;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public class Mot
 {
 	private String mot;

@@ -64,6 +64,7 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	
 	@SuppressWarnings("unchecked")
 	public List<String> rechercher(FiltreDeRecherche parametresDeRecherche) {
+		long debut = System.currentTimeMillis();
 		Map<String, Mot> dictionnaireReduit;
 		Matcher prefixMatcher = Pattern.compile("\\^(\\w+)").matcher(parametresDeRecherche.getRegex());
 		
@@ -73,6 +74,7 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 		} else {
 			dictionnaireReduit = this;
 		}
+		System.out.println(System.currentTimeMillis() - debut + " ms");
 		return rechercher(dictionnaireReduit, parametresDeRecherche);
 	}
 

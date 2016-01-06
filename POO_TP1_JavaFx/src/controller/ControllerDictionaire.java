@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+
+
 import javafx.application.Platform;
 
 
@@ -33,6 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -40,6 +43,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.KeyCode;
@@ -54,6 +58,7 @@ import model.FabriqueMotSingleton;
 import model.FiltreDeRecherche;
 import model.FiltreParDate;
 import model.Mot;
+import vue.ModifiableByDragListCell;
 
 public class ControllerDictionaire implements Initializable {
 	
@@ -67,6 +72,9 @@ public class ControllerDictionaire implements Initializable {
     private boolean recherchePermise;
     private Mot dernierMotAffiche;
     private static final String DEFINITION_DEFAUT = "Double-cliquez pour ajouter une définition.";
+    
+    @FXML
+    private ControllerImage imageController;
 	
     @FXML
     private TextField champRecherche;
@@ -116,6 +124,28 @@ public class ControllerDictionaire implements Initializable {
 		finaliserLAffichageDeDepart();
 		setBindings();
 		setListenersAndEventHandlers();
+		setListViewModifiableAvecDrag();
+	}
+
+	private void setListViewModifiableAvecDrag() {
+		listViewMots.setCellFactory(listViewMots -> {
+			return new ModifiableByDragListCell((observable, args) -> {
+				Object[] arguments = (Object[]) args;
+				String libelle = (String) arguments[0];
+				Dragboard dragboard = (Dragboard) arguments[1];
+				
+				if (dragboard.hasImage()) {
+					dictionnaire.get(libelle).setImageAssocieAuMot(dragboard.getUrl());
+				} else if (dragboard.hasContent(ModifiableByDragListCell.DEFINITION)){
+					dictionnaire.get(libelle).setDefinition(
+							(String) dragboard
+							.getContent(ModifiableByDragListCell.DEFINITION)
+							);
+				}
+				
+			});
+		});
+		
 	}
 
 	private void lancerLeChargementDuDictionnaire() {
@@ -180,6 +210,11 @@ public class ControllerDictionaire implements Initializable {
 				e.consume();
 			}
 		});
+		
+		this.imageController.addObserver((observable, args) -> {
+			this.dernierMotAffiche.setImageAssocieAuMot((String) args); 
+		});
+
 	 }
 	 
 	 private void lierSelectionMotEtAffichage() {
@@ -225,6 +260,7 @@ public class ControllerDictionaire implements Initializable {
 		dansLeMotChBox.disableProperty().bind(
 				parametresDeRecherche.recherchePermiseDansContenuProperty().not()
 				);
+
 	}
 
 	private void gererAutomatiquementLaLargeurDeLaLegendeDuFiltre() {
@@ -370,7 +406,6 @@ public class ControllerDictionaire implements Initializable {
     	textFieldAffichageMot.setText(mot.toString());
     	textFieldDateSaisieMot.setText(
     			"Saisi le " + mot.getDateSaisieMot().toString() + ". ");
-    	System.out.println(mot.getDateModificationMot());
     	textFieldDateSaisieMot.appendText(
     			mot.getDateModificationMot() == null ?
     					"Jamais modifié." : 
@@ -383,6 +418,7 @@ public class ControllerDictionaire implements Initializable {
 			textAreaDifinition.setText(mot.getDefinition());
 			textAreaDifinition.setStyle("");
 		}
+		imageController.setImage(mot.getNomFichier(), false);
 		
 	}
     
@@ -397,11 +433,7 @@ public class ControllerDictionaire implements Initializable {
 		textAreaDifinition.setEditable(false);
 		buttonModifier.setDisable(true);
 		buttonAnnuler.setDisable(true);
-	}
-
-
-
-	private void afficherDefinitionFiltre() {
+	}	private void afficherDefinitionFiltre() {
 		definitionFiltreText.setText(this.parametresDeRecherche.getDefinition());
 		if (!this.parametresDeRecherche.hasFiltreParDateOuParImage()) {
 			definitionFiltreText.setFill(Color.GREEN);

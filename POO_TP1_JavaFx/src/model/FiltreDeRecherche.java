@@ -58,18 +58,18 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 		this.rechercheDansLeContenuDemande.addListener(this);
 		this.rechercheOuverte.addListener(this);
 		
-//		recherchePermiseDansContenu.bind(
-//				expressionDeDepart.length().greaterThanOrEqualTo(
-//						MIN_CHAR_RECH_CONTENU
-//						)
-//				);
-		expressionDeDepart.addListener((obs, old, n) -> {
-			if (n.length() >= MIN_CHAR_RECH_CONTENU) {
-				recherchePermiseDansContenu.set(true);
-			} else {
-				recherchePermiseDansContenu.set(false);
-			}
-		});
+		recherchePermiseDansContenu.bind(
+				expressionDeDepart.length().greaterThanOrEqualTo(
+						MIN_CHAR_RECH_CONTENU
+						)
+				);
+//		expressionDeDepart.addListener((obs, old, n) -> {
+//			if (n.length() >= MIN_CHAR_RECH_CONTENU) {
+//				recherchePermiseDansContenu.set(true);
+//			} else {
+//				recherchePermiseDansContenu.set(false);
+//			}
+//		});
 	}
 	
 	public void updateRegex() {
@@ -88,7 +88,6 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 			}
 			
 			this.regex = Pattern.compile(expression);
-			System.out.println("update " + expression);
 		}
 	}
 	
