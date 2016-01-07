@@ -73,6 +73,10 @@
     -fx-text-fill: white;
 }
 
+.text-area:readonly.defaultDefinition {
+	-fx-text-fill: grey;
+}
+
 .menu-item .label{
 	-fx-text-fill: black;
 }

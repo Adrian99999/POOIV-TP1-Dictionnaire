@@ -36,14 +36,19 @@ public class Mot
 		return definition;
 	}
 	public void setDefinition(String definition) {
-		this.definition = definition;
+		if (!definition.equals(this.definition)){
+			this.definition = definition;
+			this.setDateModificationMot(LocalDate.now());
+		}
 	}
 	public String getNomFichier() {
 		return nomImageAssocie;
 	}
 	public void setImageAssocieAuMot(String nomFichier) {
-		//this.nomImageAssocie = this.getClass().getClassLoader().getResource(nomFichier).toString();
-		this.nomImageAssocie = nomFichier;
+		if (!nomFichier.equals(this.nomImageAssocie)) {
+			this.nomImageAssocie = nomFichier;
+			this.setDateModificationMot(LocalDate.now());
+		}
 	}
 	public LocalDate getDateSaisieMot() {
 		return dateSaisieMot;
@@ -62,7 +67,7 @@ public class Mot
 		return !this.nomImageAssocie.isEmpty();
 	}
 	
-	private static String capitalize(String original) {
+	public static String capitalize(String original) {
 		return original.substring(0, 1).toUpperCase() + original.substring(1);
 
 	}

@@ -69,7 +69,7 @@
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                      <children>
                         <Button fx:id="buttonAnnuler" cancelButton="true" mnemonicParsing="false" onAction="#annulerModification" styleClass="lion-default" text="Annuler" />
-                        <Button fx:id="buttonModifier" mnemonicParsing="false" onAction="#modifierMot" styleClass="lion-default" text="Modifier" />
+                        <Button fx:id="buttonModifier" mnemonicParsing="false" onAction="#modifierMot" styleClass="lion-default" text="Sauvegarder" />
                      </children>
                      <padding>
                         <Insets top="20.0" />

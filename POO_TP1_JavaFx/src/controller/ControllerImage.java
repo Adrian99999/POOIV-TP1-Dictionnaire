@@ -1,9 +1,12 @@
 package controller;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Observer;
 import java.util.ResourceBundle;
+
+
 
 
 
@@ -23,6 +26,7 @@ import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -67,25 +71,29 @@ import vue.ModifiableByDragListCell;
 	    void onDragDropped(DragEvent event) {
 	    	Dragboard dragboard = event.getDragboard();
 	    	boolean success = false;
-//	    	if(dragboard.hasImage())
-//	    	{
-//	    		this.setImage(dragboard.getString());
-//	    		success = true;
-//	    	} else 
-	    		if (dragboard.hasString()) {
-	    			System.out.println("String = " + dragboard.getString());
-	    			System.out.println("URL = " + dragboard.getUrl());
-//	    			System.out.println("has image " + dragboard.hasImage());
-	    			this.setImage(dragboard.getString(), true);
-	    			success = true;
-	    		}
-	    	event.setDropCompleted(success);
+	    	String path = null;
+	    	
+	    	if(dragboard.hasFiles() && dragboard.getFiles().size() == 1)
+	    	{
+	    		try {
+					path = dragboard.getFiles().get(0)
+							.toURI().toURL().toString();
+				} catch (MalformedURLException e) {}
+	    	} else if (dragboard.hasString()) {
+    			path = dragboard.getString();
+    		}
+	    	if (path != null) {
+	    		this.setImage(path, true);
+	    	}
+	    	event.setDropCompleted(path == null);
 	    	event.consume();
 	    }
 
 	    @FXML
 	    void onDragEntered(DragEvent event) {
-	    	imageView.setEffect(new Glow());
+	    	if (clipboardValidePourImage(event.getDragboard())) {
+	    		imageView.setEffect(new Glow());
+	    	}
 	    }
 
 	    @FXML
@@ -95,9 +103,7 @@ import vue.ModifiableByDragListCell;
 
 	    @FXML
 	    void onDragOver(DragEvent event) {
-	    	
-	    	if (event.getDragboard().hasString() && 
-	    				!event.getDragboard().getString().equals(this.cheminImage))
+	    	if (clipboardValidePourImage(event.getDragboard()))
 	    	{
 	    		event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 	    	}
@@ -127,16 +133,25 @@ import vue.ModifiableByDragListCell;
 	    	
 	    }
 	    
+	    private boolean clipboardValidePourImage(Clipboard cb) {
+	    	if (cb.hasFiles()) {
+	    		return true;
+	    	}
+	    	if (cb.hasString() && !cb.getString().equals(this.cheminImage)) {
+	    		return true;
+	    	}
+	    	return false;
+	    }
+	    
 	    private void setImage(Image image, String path, boolean modification) {
 	    	imageView.setImage(image);
 	    	this.cheminImage = path;
 			this.imageAChange.set(modification);
 	    }
 		
-		public void addObserver(Observer observer) {
-			this.observer = observer;
-		}
-		
+//		public void addObserver(Observer observer) {
+//			this.observer = observer;
+//		}
 		public ReadOnlyBooleanProperty imageAChangeProperty() {
 			return this.imageAChange;
 		}

@@ -8,7 +8,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
 public class ModifiableByDragListCell extends ListCell<String> {
-	
 	public static final DataFormat DEFINITION = new  DataFormat("DEFINITION");
 	public static final DataFormat IMAGE_PATH = new  DataFormat("IMAGE_PATH");
 	private Observer observer;
@@ -26,13 +25,13 @@ public class ModifiableByDragListCell extends ListCell<String> {
 		
 		this.setOnDragOver(e -> {
 			Dragboard dragboard = e.getDragboard();
-			System.out.println("over");
-			System.out.println("Image = " + dragboard.hasImage());
-            System.out.println("String = " + dragboard.getString());
-            System.out.println("URL = " + dragboard.getUrl());
-            System.out.println("--------");
+//			System.out.println("over");
+//			System.out.println("Image = " + dragboard.hasImage());
+//            System.out.println("String = " + dragboard.getString());
+//            System.out.println("URL = " + dragboard.getUrl());
+//            System.out.println("--------");
 			if (e.getDragboard().hasContent(IMAGE_PATH) || e.getDragboard().hasContent(DEFINITION)) {
-				System.out.println("Accept");
+//				System.out.println("Accept");
 				e.acceptTransferModes(TransferMode.COPY);
 			}
 			e.consume();
@@ -40,16 +39,16 @@ public class ModifiableByDragListCell extends ListCell<String> {
 		
 		this.setOnDragDropped(event -> {
 			Dragboard dragboard = event.getDragboard();
-			System.out.println("dropped");
-			System.out.println("Image = " + dragboard.hasImage());
-            System.out.println("String = " + dragboard.getString());
-            System.out.println("URL = " + dragboard.getUrl());
-            System.out.println("--------");
+//			System.out.println("dropped");
+//			System.out.println("Image = " + dragboard.hasImage());
+//            System.out.println("String = " + dragboard.getString());
+//            System.out.println("URL = " + dragboard.getUrl());
+//            System.out.println("--------");
             if (event.getTransferMode() == TransferMode.COPY && 
             		(dragboard.hasContent(IMAGE_PATH) || dragboard.hasContent(DEFINITION))) {
-                System.out.println("Image = " + dragboard.hasImage());
-                System.out.println("String = " + dragboard.getString());
-                System.out.println("URL = " + dragboard.getUrl());
+//                System.out.println("Image = " + dragboard.hasImage());
+//                System.out.println("String = " + dragboard.getString());
+//                System.out.println("URL = " + dragboard.getUrl());
             	this.observer.update(
                 		null, 
                 		new Object[]{
