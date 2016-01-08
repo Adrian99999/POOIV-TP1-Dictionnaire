@@ -1,38 +1,18 @@
 package controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Observer;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.ResourceBundle;
-
 import vue.ParametresAffichage;
-
-
-
-
-
-
-
 import javafx.application.Platform;
-
-
-import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.WeakListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -42,15 +22,10 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
@@ -63,7 +38,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
 import model.FiltreDeRecherche;
@@ -71,10 +45,24 @@ import model.FiltreParDate;
 import model.Mot;
 import vue.ModifiableByDragListCell;
 
+/**
+ * Contolleur principal de l'application Dictionnaire.
+ * (Classe beaucoup trop grande qui mériterait d'être
+ * divisée en plusieurs contrôleurs secondaires.)
+ * @author François Lefebvre & Adrian Pinzaru
+ *
+ */
 public class ControllerDictionaire implements Initializable {
 	
+	/**
+	 * Modes que peut prendre l'application.
+	 */
 	public enum MODE {
 		CHARGEMENT, NORMAL, RECHERCHE;
+	}
+	
+	public enum TYPE_MODIFICATION {
+		MODIFICATION, CREATION, SUPPRESSION
 	}
 	
 	private ObservableList<String> listeDesMotsAffiches = FXCollections.observableArrayList();
@@ -121,13 +109,15 @@ public class ControllerDictionaire implements Initializable {
 
     @FXML
     private Button buttonModifier;
-    	
-//    @FXML
-//    private MenuItem fermerApplication;
     
     @FXML
     private Text definitionFiltreText;
     
+    /**
+     * Initialization du contrôleur.
+     * Chargement du dictionnaire, réglages de l'affichage et
+     * réglage des fonctionnalités.
+     */
     @Override
 	public void initialize(URL location, ResourceBundle resources) {
 		lancerLeChargementDuDictionnaire();
@@ -135,16 +125,329 @@ public class ControllerDictionaire implements Initializable {
 		setBindings();
 		setListenersAndEventHandlers();
 		setListViewModifiableAvecDrag();
-		setDraggableDefinition();
-//		this.definitionFiltreText.getStyleClass().addListener(new ListChangeListener<String>() {
-//
-//			@Override
-//			public void onChanged(
-//					ListChangeListener.Change<? extends String> c) {
-//						System.out.println(String.join(", ", c.getList()));
-//					}
-//		});
 	}
+    
+    /**
+     * Lancement du dictionnaire sur un thread secondaire. Permet
+     * d'interagir avec l'application.
+     */
+	private void lancerLeChargementDuDictionnaire() {
+		setMode(MODE.CHARGEMENT);
+		new Thread(() -> {
+			creerLeDictionnaire();
+			Platform.runLater(() -> {
+				setMode(MODE.NORMAL);
+				lancerRechercheOuverte();
+			});
+		}).start();
+	}
+    
+	/**
+	 * Création du dictionnaire.
+	 */
+	private void creerLeDictionnaire() {
+		FabriqueMotSingleton fabriqueDic = FabriqueMotSingleton.getInstance();
+	    dictionnaire = fabriqueDic.getDictionnaire();
+	}
+    
+	/**
+	 * Lance une recherche par préfixe. La fin du mot n'a pas à être spécifiée.
+	 */
+	private void lancerRechercheOuverte() {
+		this.parametresDeRecherche.setRechercheOuverte(true);
+		this.lancerRecherche();
+	}
+	
+	/**
+	 * Lance la recherche si elle est permise.
+	 */
+	private void lancerRecherche() {
+		if (this.recherchePermise()) {
+			setMode(MODE.RECHERCHE);
+			afficherLaListeDesMots(dictionnaire.rechercher(parametresDeRecherche));
+			setMode(MODE.NORMAL);
+			champRecherche.end();
+		}
+	}
+	
+	/**
+	 * Affiche une liste de mot dans le menu de liste des résultats.
+	 * @param collection Liste de mots à afficher.
+	 */
+	private void afficherLaListeDesMots(Collection<String> collection) {
+		listeDesMotsAffiches.clear();
+		listeDesMotsAffiches.addAll(collection);
+		listViewMots.getSelectionModel().selectFirst();
+	}
+    
+	/**
+	 * Gère les actions à prendre quand les touches Retour et Flèche vers
+	 * le bas sont actionnées dans le champ de recherche.
+	 * @param event Événement de touche.
+	 */
+	@FXML
+    void gererTouchesDuChampDeRecherche(KeyEvent event) {
+		if (event.getCode() == KeyCode.ENTER) {
+			afficherMotSelectionne();
+			event.consume();
+		} else if (event.getCode() == KeyCode.DOWN) {
+			afficherMotSelectionne();
+			listViewMots.requestFocus();
+			event.consume();
+		}
+    }
+    
+	/**
+	 * Affiche le mot sélectionné dans la liste des résultats.
+	 */
+	private void afficherMotSelectionne() {
+		if (!listViewMots.getSelectionModel().isEmpty()) {
+			String libelle = listViewMots.getSelectionModel().getSelectedItem();
+			demanderDAfficher(dictionnaire.get(libelle));
+		} else {
+			sectionDefinition.setVisible(false);
+		}
+	}
+	
+	/**
+	 * Gère une demande d'affichage de mot.
+	 * @param mot Mot à afficher.
+	 */
+	private void demanderDAfficher(Mot mot)
+	{
+		ButtonType reponse = sAssurerQueToutesLesModificationsSontSavegardeesSinonLeDemander();
+		
+		boolean annulerLAffichage = (reponse == ButtonType.CANCEL);
+		
+		if (!annulerLAffichage) afficher(mot);
+	}
+	
+	/**
+	 * Affiche un mot
+	 * @param mot Mot à afficher.
+	 */
+	private void afficher(Mot mot) {
+		if(mot != null) {
+    		setValeursMot(mot);
+        	setAffichageMot();
+    	} else {
+    		sectionDefinition.setVisible(false);
+    	}
+		this.dernierMotAffiche = mot;
+	}
+	
+	/**
+	 * Définit les valeurs d'affichage du mot.
+	 * @param mot Mot à afficher.
+	 */
+	private void setValeursMot(Mot mot) {
+		textFieldAffichageMot.setText(mot.toString());
+		textFieldDateSaisieMot.setText(
+				"Saisi le " + mot.getDateSaisieMot().toString() + ". ");
+		textFieldDateSaisieMot.appendText(
+				mot.getDateModificationMot() == null ?
+						"Jamais modifié." : 
+						"Modifié le " + mot.getDateModificationMot() +
+						"."
+				);
+		afficherDefinition(mot.getDefinition());
+		imageController.setImage(mot.getNomFichier(), false);
+	 }
+	
+	/**
+	 * Réinitialise les paramètres d'affichage des mots et du filtre.
+	 */
+    private void setAffichageMot() {
+		sectionDefinition.setVisible(true);
+		textFieldAffichageMot.setEditable(false);
+		textAreaDifinition.setEditable(false);
+		buttonModifier.setDisable(true);
+		buttonAnnuler.setDisable(true);
+	}	private void afficherDefinitionFiltre() {
+		definitionFiltreText.setText(this.parametresDeRecherche.getDefinition());
+		if (!this.parametresDeRecherche.hasFiltreParDateOuParImage()) {
+			definitionFiltreText.setFill(Color.GREEN);
+		} else {
+			definitionFiltreText.setFill(Color.ORANGE);
+		}
+	}
+	   
+	/**
+	 * Affiche la définition.
+	 * @param definition Définition à afficher.
+	 */
+	private void afficherDefinition(String definition) {
+		if (definition.isEmpty()) {
+			textAreaDifinition.getStyleClass().add("defaultDefinition");
+			textAreaDifinition.setText(ParametresAffichage.DEFINITION_DEFAUT);
+		} else {
+			 textAreaDifinition.getStyleClass().removeAll("defaultDefinition");
+			 textAreaDifinition.setText(definition);
+		}
+	}
+	
+	/**
+	 * S'assure que toutes les modifications apportées sont sauvegardée. Si
+	 * certaines modifications ne sont pas sauvegardées, on demande à
+	 * l'utilisateur s'il souhaite le faire.
+	 * @return ButtonType Choix de l'utilisateur.
+	 */
+    private ButtonType sAssurerQueToutesLesModificationsSontSavegardeesSinonLeDemander() {
+    	ButtonType reponse = ButtonType.CANCEL;
+    	
+    	if (this.dictionnaireAEteModifie())
+		{
+    		TYPE_MODIFICATION typeModification;
+			
+    		if (libelleDuMotAEteModifie()) {
+				typeModification = TYPE_MODIFICATION.CREATION;
+			} else {
+				typeModification = TYPE_MODIFICATION.MODIFICATION;
+			}
+			
+			reponse = confirmerModificationAvecAnnulation(
+						textFieldAffichageMot.getText(),
+						typeModification
+						);
+			
+			if (reponse == ButtonType.YES) {
+				enregistrerLesModificationsAuDictionnaire();
+			}
+		} 
+		return reponse;
+	}
+    
+    /**
+     * Demande l'enregistrement des modifications après avoir actionné
+     * le bouton associé.
+     * @param event Action sur bouton.
+     */
+	@FXML
+    void modifierMot(ActionEvent event) {
+    	Mot motModifie = enregistrerLesModificationsAuDictionnaire();
+    	demanderDAfficher(motModifie);
+    }
+    
+    /**
+     * Enregistre toute modification au dictionnaire.
+     * @return Mot Mot créé ou sauvegarder.
+     */
+    private Mot enregistrerLesModificationsAuDictionnaire() {
+    	if(!libelleDuMotAEteModifie()) {
+    		return enregistrerLesModificationsAuMotAffiche();
+    	} else {
+    		return creerNouveauMotDApresAffichage();
+    	}
+    }
+    
+    /**
+	 * Enregistrement des modifications du mot affiché.
+	 * @return Mot enregistré.
+	 */
+	private Mot enregistrerLesModificationsAuMotAffiche() {
+		Mot motModifie = this.dernierMotAffiche;
+    	motModifie.setDefinition(this.definitionEstNulle() ? "" : textAreaDifinition.getText());
+    	motModifie.setDateModificationMot(LocalDate.now());
+		motModifie.setImageAssocieAuMot(imageController.getCheminImage());
+		return motModifie;
+	}
+	
+	/**
+	 * Création d'un nouveau mot selon le mot affiché.
+	 * @return Mot créé.
+	 */
+    private Mot creerNouveauMotDApresAffichage() {
+    	Mot newMot = new Mot(textFieldAffichageMot.getText().toLowerCase());
+		newMot.setDateSaisieMot(LocalDate.now());
+		if(!definitionEstNulle()) {
+			newMot.setDefinition(textAreaDifinition.getText());
+		}
+		newMot.setImageAssocieAuMot(imageController.getCheminImage());
+		dictionnaire.ajouter(newMot);
+		return newMot;
+	}
+    
+    /**
+     * Vérifie si le dictionnaire a été modifié.
+     * @return Vrai ou faux
+     */
+    private boolean dictionnaireAEteModifie() {
+		if (this.dernierMotAffiche != null) {
+			return libelleDuMotAEteModifie() ||
+					contenuDuMotAEteModifie();
+		} else {
+			return false;
+		}
+	}
+	
+    /**
+     * Vérifie si le le contenu du mot a été modifié.
+     * @return Vrai ou faux
+     */
+	private boolean contenuDuMotAEteModifie() {
+		if (this.dernierMotAffiche != null) {
+			return definitionAEteModifie() ||
+					imageAEteModifie();
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+     * Vérifie si le libellé du mot a été modifié.
+     * @return Vrai ou faux
+     */
+	private boolean libelleDuMotAEteModifie() {
+			return !this.dernierMotAffiche.getMot().equals(textFieldAffichageMot.getText().toLowerCase());
+    }
+	
+	/**
+     * Vérifie si la définition du mot a été modifié.
+     * @return Vrai ou faux
+     */
+	private boolean definitionAEteModifie() {
+		String definitionOriginale = this.dernierMotAffiche.getDefinition();
+		
+		if (definitionEstNulle() && definitionOriginale.isEmpty()) {
+			return false;
+		}
+		
+		if (textAreaDifinition.getText().equals(definitionOriginale)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+     * Vérifie si le chemin de l'image a été modifié.
+     * @return Vrai ou faux
+     */
+	private boolean imageAEteModifie() {
+		return !this.dernierMotAffiche.getNomFichier()
+				.equals(imageController.getCheminImage());
+	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+    
+    
+    //*************************************
 
 	private void setDraggableDefinition() {
 		this.textAreaDifinition.setOnDragDetected(e -> {
@@ -157,6 +460,7 @@ public class ControllerDictionaire implements Initializable {
 	}
 
 	private void setListViewModifiableAvecDrag() {
+		setDraggableDefinition();
 		listViewMots.setCellFactory(listViewMots -> {
 			return new ModifiableByDragListCell((observable, args) -> {
 				Object[] arguments = (Object[]) args;
@@ -202,21 +506,9 @@ public class ControllerDictionaire implements Initializable {
 		
 	}
 
-	private void lancerLeChargementDuDictionnaire() {
-		setMode(MODE.CHARGEMENT);
-		new Thread(() -> {
-			creerLeDictionnaire();
-			Platform.runLater(() -> {
-				setMode(MODE.NORMAL);
-				lancerRechercheOuverte();
-			});
-		}).start();
-	}
+
 	
-	private void creerLeDictionnaire() {
-		FabriqueMotSingleton fabriqueDic = FabriqueMotSingleton.getInstance();
-	    dictionnaire = fabriqueDic.getDictionnaire();
-	}
+
 	
 	 private void setListenersAndEventHandlers() {
 		listViewMots.setItems(listeDesMotsAffiches);
@@ -234,7 +526,7 @@ public class ControllerDictionaire implements Initializable {
 		this.textFieldAffichageMot.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
 			if (!nouvelleValeurDeFocus) {
 				this.textFieldAffichageMot.setEditable(false);
-				if (isMotAEteModifie()) {
+				if (dictionnaireAEteModifie()) {
 					buttonModifier.setDisable(false);
 					buttonAnnuler.setDisable(false);
 				}
@@ -244,7 +536,7 @@ public class ControllerDictionaire implements Initializable {
 			if (!nouvelleValeurDeFocus) {
 				this.textAreaDifinition.setEditable(false);
 				afficherDefinition(this.textAreaDifinition.getText().trim());
-				if (isMotAEteModifie()) {
+				if (dictionnaireAEteModifie()) {
 					buttonModifier.setDisable(false);
 					buttonAnnuler.setDisable(false);
 				}
@@ -279,7 +571,7 @@ public class ControllerDictionaire implements Initializable {
 				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 					buttonEffacer.setDisable(newValue != null);
 					if (listViewMots.isFocused() && newValue != null) {
-						afficherInfoMot(dictionnaire.get(newValue), false);
+						demanderDAfficher(dictionnaire.get(newValue));
 						buttonEffacer.setDisable(false);
 					}
 				}
@@ -334,25 +626,9 @@ public class ControllerDictionaire implements Initializable {
 		}
 	 }
 	
-	private void lancerRechercheOuverte() {
-		this.parametresDeRecherche.setRechercheOuverte(true);
-		this.lancerRecherche();
-	}
 	
-	private void lancerRecherche() {
-		if (this.recherchePermise()) {
-			setMode(MODE.RECHERCHE);
-			afficherLaListeDesMots(dictionnaire.rechercher(parametresDeRecherche));
-			setMode(MODE.NORMAL);
-			champRecherche.end();
-		}
-	}
 	
-	private void afficherLaListeDesMots(Collection<String> collection) {
-		listeDesMotsAffiches.clear();
-		listeDesMotsAffiches.addAll(collection);
-		listViewMots.getSelectionModel().selectFirst();
-	}
+
 	
 	private void setMode(MODE mode) {
 		
@@ -363,7 +639,7 @@ public class ControllerDictionaire implements Initializable {
 			listeDesMotsAffiches.setAll("Chargement...");
 			break;
 		case NORMAL:
-			this.recherchePermise = true;
+			setRecherchePermise(true);
 			listViewMots.setDisable(false);
 			break;
 		case RECHERCHE:
@@ -379,7 +655,6 @@ public class ControllerDictionaire implements Initializable {
     
 	private boolean recherchePermise() {
 		return this.recherchePermise;
-//				&& this.parametresDeRecherche.validePourLaRecherche();
 	}
 	
 	private void finaliserLAffichageDeDepart() {
@@ -427,63 +702,14 @@ public class ControllerDictionaire implements Initializable {
 		return controleurFiltre;
 	}
 
-	@FXML
-    void gererTouchesDuChampDeRecherche(KeyEvent event) {
-		if (event.getCode() == KeyCode.ENTER) {
-			afficherMotSelectionne();
-			event.consume();
-		} else if (event.getCode() == KeyCode.DOWN) {
-			afficherMotSelectionne();
-			listViewMots.requestFocus();
-			event.consume();
-		}
-    }
+
 	
-	private void afficherMotSelectionne() {
-		if (!listViewMots.getSelectionModel().isEmpty()) {
-			String libelle = listViewMots.getSelectionModel().getSelectedItem();
-			afficherInfoMot(dictionnaire.get(libelle), false);
-		} else {
-			sectionDefinition.setVisible(false);
-		}
-	}
+
        
-    private void afficherInfoMot(Mot mot, boolean ecraserLesModifications)
-    {
-    	boolean afficherMot = ecraserLesModifications;
-    	
-    	if (this.isMotAEteModifie() && !ecraserLesModifications)
-    	{
-    		ButtonType reponse = confirmerModificationAvecAnnulation(
-    				this.dernierMotAffiche.toString()
-    				);
-			
-    		if (reponse == ButtonType.YES) {
-				enregistrerLesModifications();
-				afficherMot = true;
-			} else if (reponse == ButtonType.NO) {
-				afficherMot = true;
-			} else {
-				afficherMot = false;
-			}
-    	} 
-    	else 
-    	{
-    		afficherMot = true;
-    	}
-    	
-    	if (afficherMot) {
-    		if(mot != null) {
-	    		setValeursMot(mot);
-	        	setAffichageMot();
-	    	} else {
-	    		sectionDefinition.setVisible(false);
-	    	}
-			this.dernierMotAffiche = mot;
-    	}
-    }
+   
     
-    private ButtonType confirmerModificationAvecAnnulation(String libelle) {
+    private ButtonType confirmerModificationAvecAnnulation(
+    		String libelle, TYPE_MODIFICATION typeDeModification) {
 		return confirmerModification(libelle, true);
 	}
     
@@ -511,131 +737,28 @@ public class ControllerDictionaire implements Initializable {
 		}
     }
 	
-    private void setValeursMot(Mot mot) {
-    	textFieldAffichageMot.setText(mot.toString());
-    	textFieldDateSaisieMot.setText(
-    			"Saisi le " + mot.getDateSaisieMot().toString() + ". ");
-    	textFieldDateSaisieMot.appendText(
-    			mot.getDateModificationMot() == null ?
-    					"Jamais modifié." : 
-    						"Modifié le " + mot.getDateModificationMot() +
-    						"."
-    			);
-    	afficherDefinition(mot.getDefinition());
-		imageController.setImage(mot.getNomFichier(), false);
-		
-	}
-    
-//    private void afficherDefaultDefinition(){
-//    	textAreaDifinition.setText(DEFINITION_DEFAUT);
-//		textAreaDifinition.getStyleClass().add("defaultDefinition");
-//    }
-    
-    private void afficherDefinition(String definition) {
-    	if (definition.isEmpty()) {
-    		textAreaDifinition.getStyleClass().add("defaultDefinition");
-    		textAreaDifinition.setText(ParametresAffichage.DEFINITION_DEFAUT);
-    	} else {
-    		 textAreaDifinition.getStyleClass().removeAll("defaultDefinition");
-    		 textAreaDifinition.setText(definition);
-    	}
-    }
+   
 	
-    private void setAffichageMot() {
-		sectionDefinition.setVisible(true);
-		textFieldAffichageMot.setEditable(false);
-		textAreaDifinition.setEditable(false);
-		buttonModifier.setDisable(true);
-		buttonAnnuler.setDisable(true);
-	}	private void afficherDefinitionFiltre() {
-		definitionFiltreText.setText(this.parametresDeRecherche.getDefinition());
-		if (!this.parametresDeRecherche.hasFiltreParDateOuParImage()) {
-			definitionFiltreText.setFill(Color.GREEN);
-		} else {
-			definitionFiltreText.setFill(Color.ORANGE);
-		}
-	}
-	
-    @FXML
-    void modifierMot(ActionEvent event) {
-//    	Mot motAAfficher;
-    	//si le text du mot n'a pas été modiffié
-    	if(!isLibelleMotAEteModifie())
-    	{
-    		Mot motModifie = enregistrerLesModifications();
-    		this.afficherInfoMot(motModifie, true);
-    	}
-    	else
-    	{
-    		Mot nouveauMotCree = creerNouveauMot();
-    		this.afficherInfoMot(nouveauMotCree, true);
-    	}
-//    	this.lancerRechercheOuverte();
-//		this.afficherInfoMot(motAAfficher);
-//		this.champRecherche.requestFocus();
-//		this.champRecherche.end();
-    	
-    }
-    
-    private Mot creerNouveauMot() {
-    	Mot newMot = new Mot(textFieldAffichageMot.getText().toLowerCase());
-		newMot.setDateSaisieMot(LocalDate.now());
-		if(!definitionEstNulle()) {
-			newMot.setDefinition(textAreaDifinition.getText());
-		}
-		newMot.setImageAssocieAuMot(imageController.getCheminImage());
-		dictionnaire.ajouter(newMot);
-		return newMot;
-	}
 
-	private Mot enregistrerLesModifications() {
-		Mot motModifie = this.dernierMotAffiche;
-    	motModifie.setDefinition(this.definitionEstNulle() ? "" : textAreaDifinition.getText());
-    	motModifie.setDateModificationMot(LocalDate.now());
-		motModifie.setImageAssocieAuMot(imageController.getCheminImage());
-		return motModifie;
-	}
-
-	private boolean isLibelleMotAEteModifie() {
-			return !this.dernierMotAffiche.getMot().equals(textFieldAffichageMot.getText().toLowerCase());
-    }
 	
-	private boolean isMotAEteModifie() {
-		if (this.dernierMotAffiche != null) {
-			return isLibelleMotAEteModifie() ||
-					definitionAEteModifie() ||
-					imageAEteModifie();
-		} else {
-			return false;
-		}
-	}
-	
-	private boolean imageAEteModifie() {
-		return !this.dernierMotAffiche.getNomFichier()
-				.equals(imageController.getCheminImage());
-	}
+    
 
+
+	
+
+	
+	
+	
 	private boolean definitionEstNulle() {
 		return textAreaDifinition.getText().equals(ParametresAffichage.DEFINITION_DEFAUT);
 	}
 	
-	private boolean definitionAEteModifie() {
-		String definitionOriginale = this.dernierMotAffiche.getDefinition();
-		
-		if (definitionEstNulle() && definitionOriginale.isEmpty()) {
-			return false;
-		}
-		
-		if (textAreaDifinition.getText().equals(definitionOriginale)) {
-			return false;
-		}
-		
-		return true;
-	}
-
 	@FXML
     void ajouterMot(ActionEvent event) {
-    	
+		Mot motAAjouter = new Mot(this.champRecherche.getText().toLowerCase());
+    	dictionnaire.ajouter(motAAjouter);
+    	lancerRechercheOuverte();
+    	demanderDAfficher(motAAjouter);
     }
 	
     @FXML
@@ -663,7 +786,7 @@ public class ControllerDictionaire implements Initializable {
 	
     @FXML
     void annulerModification(ActionEvent event) {
-    	afficherInfoMot(this.dernierMotAffiche, true);
+    	demanderDAfficher(this.dernierMotAffiche);
     }
 
 //    @FXML
