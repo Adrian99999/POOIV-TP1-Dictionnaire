@@ -14,10 +14,14 @@ public class Mot
 	private LocalDate dateModificationMot;
 	
 	public Mot(String pMot) {
+		this(pMot, "", "");
+	}
+	
+	public Mot(String pMot, String definition, String cheminImage) {
 		this.mot = pMot.toLowerCase();
-		this.dateSaisieMot = LocalDate.now();
-		this.definition = "";
-		this.nomImageAssocie = "";
+		this.definition = definition;
+		this.nomImageAssocie = cheminImage;
+		this.dateSaisieMot = null;
 		this.dateModificationMot = null;
 	}
 	
@@ -70,5 +74,22 @@ public class Mot
 	public static String capitalize(String original) {
 		return original.substring(0, 1).toUpperCase() + original.substring(1);
 
+	}
+	
+	public boolean equals(Mot motCompare) {
+		return this.mot == motCompare.getMot() &&
+				this.definition == motCompare.getDefinition() &&
+				this.nomImageAssocie == motCompare.getNomFichier();
+	}
+
+	public Mot updateInfoAPartirDe(Mot motReference) {
+		this.definition = motReference.getDefinition();
+		this.nomImageAssocie = motReference.getNomFichier();
+		this.dateModificationMot = LocalDate.now();
+		return this;
+	}
+
+	public int getNombreMotsDansDefinition() {
+		return this.getDefinition().split("[ ']").length;
 	}
 }

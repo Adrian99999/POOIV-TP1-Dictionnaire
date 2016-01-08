@@ -1,6 +1,7 @@
 package model;
 
 import java.text.Collator;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -32,8 +33,9 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	
 	int maxMotsDef = 0;
 	
-	public Dictionnaire() {
+	public Dictionnaire(String maxProperty) {
 		super(IGNORE_CASE);
+		maxMotsDef = Integer.parseInt(maxProperty);
 	}
 	
 	private static List<String> rechercher(Map<String, Mot> dic, FiltreDeRecherche parametresDeRecherche) {
@@ -78,12 +80,28 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 		return rechercher(dictionnaireReduit, parametresDeRecherche);
 	}
 
-	public void setMaxMotDef(String maxProperty) {
-		maxMotsDef = Integer.parseInt(maxProperty);
+	public Mot ajouter(Mot mot) {
+//		lancerExceptionSiMotNonValide(mot);
+		this.put(mot.getMot(), mot);
+		mot.setDateSaisieMot(LocalDate.now());
+		return mot;
 	}
-
-	public void ajouter(Mot mot) {
-		this.put(mot.getMot().toLowerCase(), mot);
+	
+	public Mot update(Mot motReference) {
+		lancerExceptionSiMotNonValide(motReference);
+		String libelle = motReference.getMot();
+		Mot motAMettreAJour = this.get(libelle);
+		Mot motMisAJour;
+		if (this.containsKey(libelle)) {
+			if (!motAMettreAJour.equals(motReference)) {
+				motMisAJour = motAMettreAJour.updateInfoAPartirDe(motAMettreAJour);
+			} else {
+				return null;
+			}
+		} else {
+			motMisAJour = this.ajouter(motAMettreAJour);
+		}
+		return motMisAJour;
 	}
 	
 	public <T> Map<String, T> subMapWithKeysThatAreSuffixes(String prefix, NavigableMap<String, T> map) {
@@ -98,5 +116,21 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	    char lastChar = input.charAt(lastCharPosition) ;
 	    char incrementedLastChar = (char) (lastChar + 1);
 	    return inputWithoutLastChar+incrementedLastChar;
+	}
+	
+	public class DefinitionTropLongueException extends RuntimeException {
+		DefinitionTropLongueException() {
+			super();
+		}
+	}
+	
+	private void lancerExceptionSiMotNonValide(Mot mot) {
+		if (mot.getNombreMotsDansDefinition() > maxMotsDef) {
+			throw new DefinitionTropLongueException();
+		}
+	}
+
+	public int getMaxMotDef() {
+		return maxMotsDef;
 	}
 }

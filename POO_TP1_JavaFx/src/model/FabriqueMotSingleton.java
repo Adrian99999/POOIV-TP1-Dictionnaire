@@ -58,8 +58,7 @@ public class FabriqueMotSingleton
 	 */
 	private void creerDictionaire()
 	{
-		dictionnaire = new Dictionnaire();
-		dictionnaire.setMaxMotDef(properties.getProperty("max.mots"));
+		dictionnaire = new Dictionnaire(properties.getProperty("max.mots"));
 		
 		
 //		new Thread(() -> {
