@@ -1,43 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="319.0" prefWidth="477.0" styleClass="background-image" stylesheets="vue/style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
+<AnchorPane prefHeight="235.0" prefWidth="638.0" styleClass="background-image" stylesheets="@/vue/style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
    <children>
-      <Label styleClass="label-bright" text="Filtre">
-         <padding>
-            <Insets left="40.0" />
-         </padding></Label>
-      <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+      <VBox layoutX="14.0" layoutY="22.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="192.0" prefWidth="610.0" styleClass="zoneOmbragee">
          <children>
-            <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" text="Date" />
-            <ComboBox fx:id="typeDateComBox" prefWidth="150.0" />
-            <ComboBox fx:id="typeFiltreDateComBox" prefWidth="150.0" />
-            <DatePicker fx:id="dateFiltrePicker" />
+            <Label styleClass="label-bright" stylesheets="@style.css" text="Filtre">
+               <padding>
+                  <Insets left="40.0" />
+               </padding>
+            </Label>
+            <HBox prefHeight="53.0" prefWidth="608.0" spacing="10.0">
+               <children>
+                  <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" text="Date" />
+                  <ComboBox fx:id="typeDateComBox" prefWidth="150.0" />
+                  <ComboBox fx:id="typeFiltreDateComBox" prefWidth="150.0" />
+                  <DatePicker fx:id="dateFiltrePicker" />
+               </children>
+               <padding>
+                  <Insets left="20.0" right="20.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="56.0" prefWidth="608.0">
+               <children>
+                  <CheckBox fx:id="imagePresenteChBox" mnemonicParsing="false" styleClass="label-bright" text="Image présente" />
+               </children>
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+            </HBox>
+            <HBox prefHeight="52.0" prefWidth="608.0" spacing="10.0">
+               <children>
+                  <Button fx:id="annulerBtn" mnemonicParsing="false" onAction="#annuler" styleClass="lion-default" text="Annuler" />
+                  <Button fx:id="appliquerBtn" mnemonicParsing="false" onAction="#appliquer" styleClass="lion-default" text="Appliquer" />
+               </children>
+               <padding>
+                  <Insets left="20.0" />
+               </padding>
+            </HBox>
          </children>
-         <padding>
-            <Insets left="20.0" right="20.0" />
-         </padding>
-      </HBox>
-      <HBox prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <CheckBox fx:id="imagePresenteChBox" mnemonicParsing="false" styleClass="label-bright" text="Image présente" />
-         </children>
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-      </HBox>
-      <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-         <children>
-            <Button fx:id="annulerBtn" mnemonicParsing="false" onAction="#annuler" styleClass="lion-default" text="Annuler" />
-            <Button fx:id="appliquerBtn" mnemonicParsing="false" onAction="#appliquer" styleClass="lion-default" text="Appliquer" />
-         </children>
-         <padding>
-            <Insets left="20.0" />
-         </padding>
-      </HBox>
+      </VBox>
    </children>
-</VBox>
+</AnchorPane>
