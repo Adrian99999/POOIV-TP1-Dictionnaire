@@ -6,20 +6,20 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="235.0" prefWidth="638.0" styleClass="background-image" stylesheets="@/vue/style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
+<AnchorPane styleClass="background-image" stylesheets="@/vue/style.css" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ControllerFiltreFenetre">
    <children>
-      <VBox layoutX="14.0" layoutY="22.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="192.0" prefWidth="610.0" styleClass="zoneOmbragee">
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="zoneOmbragee">
          <children>
-            <Label styleClass="label-bright" stylesheets="@style.css" text="Filtre">
+            <Label styleClass="label-bright" stylesheets="@/vue/style.css" text="Filtre">
                <padding>
                   <Insets left="40.0" />
                </padding>
             </Label>
-            <HBox prefHeight="53.0" prefWidth="608.0" spacing="10.0">
+            <HBox prefHeight="53.0" prefWidth="571.0" spacing="10.0">
                <children>
-                  <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" text="Date" />
-                  <ComboBox fx:id="typeDateComBox" prefWidth="150.0" />
-                  <ComboBox fx:id="typeFiltreDateComBox" prefWidth="150.0" />
+                  <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" prefHeight="18.0" prefWidth="59.0" text="Date" />
+                  <ComboBox fx:id="typeDateComBox" prefHeight="26.0" prefWidth="129.0" promptText="Mot modifié" />
+                  <ComboBox fx:id="typeFiltreDateComBox" prefHeight="26.0" prefWidth="109.0" promptText="avant le" />
                   <DatePicker fx:id="dateFiltrePicker" />
                </children>
                <padding>
@@ -34,7 +34,7 @@
                   <Insets left="20.0" />
                </padding>
             </HBox>
-            <HBox prefHeight="52.0" prefWidth="608.0" spacing="10.0">
+            <HBox prefHeight="26.0" prefWidth="610.0" spacing="10.0">
                <children>
                   <Button fx:id="annulerBtn" mnemonicParsing="false" onAction="#annuler" styleClass="lion-default" text="Annuler" />
                   <Button fx:id="appliquerBtn" mnemonicParsing="false" onAction="#appliquer" styleClass="lion-default" text="Appliquer" />
@@ -44,6 +44,9 @@
                </padding>
             </HBox>
          </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
       </VBox>
    </children>
 </AnchorPane>

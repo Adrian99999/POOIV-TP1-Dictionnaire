@@ -6,7 +6,7 @@
 .background-image
 {
 	 -fx-background-image: url("Books.jpg");
-	
+	 -fx-background-radius: 10pt;
 	 -fx-background-size: stretch;	 
 }
 

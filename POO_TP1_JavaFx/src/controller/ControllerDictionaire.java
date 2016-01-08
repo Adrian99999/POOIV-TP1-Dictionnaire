@@ -11,6 +11,7 @@ import java.util.Observer;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
+
 import vue.ParametresAffichage;
 
 
@@ -62,6 +63,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import model.Dictionnaire;
 import model.FabriqueMotSingleton;
 import model.FiltreDeRecherche;
