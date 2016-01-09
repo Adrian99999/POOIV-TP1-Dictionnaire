@@ -317,7 +317,8 @@ public class ControllerDictionaire implements Initializable {
 						);
 			
 			if (reponse == ButtonType.YES) {
-				enregistrerLesModificationsAuDictionnaire();
+				Mot motSauvegarde = enregistrerLesModificationsAuDictionnaire();
+				reponse = motSauvegarde == null ? ButtonType.CANCEL : reponse;
 			}
 		} else {
 			reponse = ButtonType.YES;
@@ -374,38 +375,27 @@ public class ControllerDictionaire implements Initializable {
      * @return Mot Mot créé ou sauvegarder.
      */
     private Mot enregistrerLesModificationsAuDictionnaire() {
-    	Mot motRetour = null;
+    	Mot motRetour;
     	try {
-    		System.out.println("avant enr. dic " + getMotTelQuAffiche());
     		motRetour = dictionnaire.update(getMotTelQuAffiche());
     	} catch (Dictionnaire.DefinitionTropLongueException e) {
+    		motRetour = null;
     		Alert alert = new Alert(AlertType.ERROR);
     		alert.setHeaderText("Définition trop longue.");
     		alert.setContentText("La définition ne doit pas dépasser "
     				+ dictionnaire.getMaxMotDef() + " mots.");
+    		alert.showAndWait();
+    		this.textAreaDifinition.setEditable(true);
+    		this.textAreaDifinition.requestFocus();
     	}
     	return motRetour;
     }
-    
-    /**
-	 * Enregistrement des modifications du mot affiché.
-	 * @return Mot enregistré.
-	 */
-//	private Mot enregistrerLesModificationsAuMotAffiche() {
-//		Mot motOriginal = this.dernierMotAffiche;
-//    	motModifie.setDefinition(this.definitionEstNulle() ? "" : textAreaDifinition.getText());
-//		motModifie.setImageAssocieAuMot(imageController.getCheminImage());
-//		return motModifie;
-//	}
 	
 	/**
 	 * Récupère le mot tel qu'affiché.
 	 * @return Mot tel qu'affiché.
 	 */
     private Mot getMotTelQuAffiche() {
-    	System.out.println("telquaffiche "+this.definitionEstNulle());
-    	System.out.println("telquaffiche "+ (this.definitionEstNulle() ? "" : textAreaDifinition.getText()));
-    	System.out.println("telquaffiche "+textAreaDifinition.getText());
     	return new Mot(
     			this.textFieldAffichageMot.getText(),
     			(this.definitionEstNulle() ? "" : textAreaDifinition.getText()),
@@ -427,63 +417,8 @@ public class ControllerDictionaire implements Initializable {
      */
     private boolean dictionnaireAEteModifie() {
     	if (this.dernierMotAffiche == null) return false;
-    	System.out.println(dernierMotAffiche.getMot());
-    	System.out.println("def : " + dernierMotAffiche.getDefinition());
-    	System.out.println("image : " + dernierMotAffiche.getNomFichier());
-    	System.out.println(getMotTelQuAffiche().getMot());
-    	System.out.println("def : " + getMotTelQuAffiche().getDefinition());
-    	System.out.println("image : " + getMotTelQuAffiche().getNomFichier());
-    	System.out.println(dernierMotAffiche.equals(getMotTelQuAffiche()));
     	return !dernierMotAffiche.equals(getMotTelQuAffiche());
 	}
-	
-    /**
-     * Vérifie si le le contenu du mot a été modifié.
-     * @return Vrai ou faux
-     */
-//	private boolean contenuDuMotAEteModifie() {
-//		if (this.dernierMotAffiche != null) {
-//			return definitionAEteModifie() ||
-//					imageAEteModifie();
-//		} else {
-//			return false;
-//		}
-//	}
-	
-	/**
-     * Vérifie si le libellé du mot a été modifié.
-     * @return Vrai ou faux
-     */
-//	private boolean libelleDuMotAEteModifie() {
-//			return !this.dernierMotAffiche.getMot().equals(textFieldAffichageMot.getText().toLowerCase());
-//    }
-	
-	/**
-     * Vérifie si la définition du mot a été modifié.
-     * @return Vrai ou faux
-     */
-//	private boolean definitionAEteModifie() {
-//		String definitionOriginale = this.dernierMotAffiche.getDefinition();
-//		
-//		if (definitionEstNulle() && definitionOriginale.isEmpty()) {
-//			return false;
-//		}
-//		
-//		if (textAreaDifinition.getText().equals(definitionOriginale)) {
-//			return false;
-//		}
-//		
-//		return true;
-//	}
-	
-	/**
-     * Vérifie si le chemin de l'image a été modifié.
-     * @return Vrai ou faux
-     */
-//	private boolean imageAEteModifie() {
-//		return !this.dernierMotAffiche.getNomFichier()
-//				.equals(imageController.getCheminImage());
-//	}
     
     /**
      * Affiche un message d'alerte demandant à l'utilisateur d'accepter ou 
@@ -624,7 +559,6 @@ public class ControllerDictionaire implements Initializable {
 				}
 			}
 		}
-		
 	} 
 
 	
@@ -812,7 +746,6 @@ public class ControllerDictionaire implements Initializable {
 		dansLeMotChBox.disableProperty().bind(
 				parametresDeRecherche.recherchePermiseDansContenuProperty().not()
 				);
-
 	}
 
 	private void gererAutomatiquementLaLargeurDeLaLegendeDuFiltre() {

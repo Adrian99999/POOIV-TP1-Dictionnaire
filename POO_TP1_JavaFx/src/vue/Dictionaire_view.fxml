@@ -47,7 +47,7 @@
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets></TextField>
-                        <TextArea fx:id="textAreaDifinition" editable="false" onMouseClicked="#gererCliqueSurDefinition" opacity="0.85" prefWidth="332.0" text="Définition du mot">
+                        <TextArea fx:id="textAreaDifinition" editable="false" onMouseClicked="#gererCliqueSurDefinition" opacity="0.85" prefWidth="332.0" text="Définition du mot" wrapText="true">
                            <VBox.margin>
                               <Insets />
                            </VBox.margin>

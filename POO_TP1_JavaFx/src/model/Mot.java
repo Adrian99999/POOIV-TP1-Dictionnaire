@@ -83,7 +83,6 @@ public class Mot
 	}
 
 	public Mot updateInfoAPartirDe(Mot motReference) {
-		System.out.println("def ref : " + motReference.getDefinition());
 		this.definition = motReference.getDefinition();
 		this.nomImageAssocie = motReference.getNomFichier();
 		this.dateModificationMot = LocalDate.now();

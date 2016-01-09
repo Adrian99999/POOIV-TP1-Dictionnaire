@@ -128,6 +128,7 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	
 	private void lancerExceptionSiMotNonValide(Mot mot) {
 		if (mot.getNombreMotsDansDefinition() > maxMotsDef) {
+			System.out.println("throw");
 			throw new DefinitionTropLongueException();
 		}
 	}
