@@ -77,12 +77,13 @@ public class Mot
 	}
 	
 	public boolean equals(Mot motCompare) {
-		return this.mot == motCompare.getMot() &&
-				this.definition == motCompare.getDefinition() &&
-				this.nomImageAssocie == motCompare.getNomFichier();
+		return this.mot.equals(motCompare.getMot()) &&
+				this.definition.equals(motCompare.getDefinition()) &&
+				this.nomImageAssocie.equals(motCompare.getNomFichier());
 	}
 
 	public Mot updateInfoAPartirDe(Mot motReference) {
+		System.out.println("def ref : " + motReference.getDefinition());
 		this.definition = motReference.getDefinition();
 		this.nomImageAssocie = motReference.getNomFichier();
 		this.dateModificationMot = LocalDate.now();

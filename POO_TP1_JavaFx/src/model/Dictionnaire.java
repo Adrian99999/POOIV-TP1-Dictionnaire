@@ -24,6 +24,7 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 	
 
 	static final Comparator<String> IGNORE_CASE = new Comparator<String>(){
+
 		@Override
 		public int compare(String o1, String o2) {
 			Collator fr_FRCollator = Collator.getInstance(new Locale("fr","FR"));
@@ -94,13 +95,14 @@ public class Dictionnaire extends TreeMap<String, Mot> {
 		Mot motMisAJour;
 		if (this.containsKey(libelle)) {
 			if (!motAMettreAJour.equals(motReference)) {
-				motMisAJour = motAMettreAJour.updateInfoAPartirDe(motAMettreAJour);
+				motMisAJour = motAMettreAJour.updateInfoAPartirDe(motReference);
 			} else {
 				return null;
 			}
 		} else {
 			motMisAJour = this.ajouter(motAMettreAJour);
 		}
+		System.out.println("def mis a jour:" + this.get(motMisAJour.getMot()).getDefinition());
 		return motMisAJour;
 	}
 	

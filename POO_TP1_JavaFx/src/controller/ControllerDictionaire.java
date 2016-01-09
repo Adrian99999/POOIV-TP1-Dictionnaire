@@ -6,11 +6,13 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 import vue.ParametresAffichage;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -317,7 +319,9 @@ public class ControllerDictionaire implements Initializable {
 			if (reponse == ButtonType.YES) {
 				enregistrerLesModificationsAuDictionnaire();
 			}
-		} 
+		} else {
+			reponse = ButtonType.YES;
+		}
 		return reponse;
 	}
     
@@ -345,7 +349,7 @@ public class ControllerDictionaire implements Initializable {
     			TYPE_MODIFICATION.SUPPRESSION
     			);
 
-    	if(reponse == ButtonType.OK)
+    	if(reponse == ButtonType.YES)
     	{
     		String motAEffacer = listViewMots.getSelectionModel().getSelectedItem();
     		listeDesMotsAffiches.remove(motAEffacer);
@@ -362,7 +366,7 @@ public class ControllerDictionaire implements Initializable {
 	@FXML
     void modifierMot(ActionEvent event) {
 		Mot motMisAJour = enregistrerLesModificationsAuDictionnaire();
-		if (motMisAJour != null) demanderDAfficher(motMisAJour);
+		if (motMisAJour != null) afficher(motMisAJour);
     }
     
     /**
@@ -372,6 +376,7 @@ public class ControllerDictionaire implements Initializable {
     private Mot enregistrerLesModificationsAuDictionnaire() {
     	Mot motRetour = null;
     	try {
+    		System.out.println("avant enr. dic " + getMotTelQuAffiche());
     		motRetour = dictionnaire.update(getMotTelQuAffiche());
     	} catch (Dictionnaire.DefinitionTropLongueException e) {
     		Alert alert = new Alert(AlertType.ERROR);
@@ -398,9 +403,12 @@ public class ControllerDictionaire implements Initializable {
 	 * @return Mot tel qu'affiché.
 	 */
     private Mot getMotTelQuAffiche() {
+    	System.out.println("telquaffiche "+this.definitionEstNulle());
+    	System.out.println("telquaffiche "+ (this.definitionEstNulle() ? "" : textAreaDifinition.getText()));
+    	System.out.println("telquaffiche "+textAreaDifinition.getText());
     	return new Mot(
     			this.textFieldAffichageMot.getText(),
-    			this.definitionEstNulle() ? "" : textAreaDifinition.getText(),
+    			(this.definitionEstNulle() ? "" : textAreaDifinition.getText()),
     			imageController.getCheminImage()
     			);
 	}
@@ -419,6 +427,13 @@ public class ControllerDictionaire implements Initializable {
      */
     private boolean dictionnaireAEteModifie() {
     	if (this.dernierMotAffiche == null) return false;
+    	System.out.println(dernierMotAffiche.getMot());
+    	System.out.println("def : " + dernierMotAffiche.getDefinition());
+    	System.out.println("image : " + dernierMotAffiche.getNomFichier());
+    	System.out.println(getMotTelQuAffiche().getMot());
+    	System.out.println("def : " + getMotTelQuAffiche().getDefinition());
+    	System.out.println("image : " + getMotTelQuAffiche().getNomFichier());
+    	System.out.println(dernierMotAffiche.equals(getMotTelQuAffiche()));
     	return !dernierMotAffiche.equals(getMotTelQuAffiche());
 	}
 	
@@ -669,9 +684,9 @@ public class ControllerDictionaire implements Initializable {
 							);
 					if (reponse == ButtonType.YES) {
 						if (definitionNouvelle != null) 
-							dictionnaire.get(libelle).setImageAssocieAuMot(definitionNouvelle);
+							dictionnaire.get(libelle).setDefinition(definitionNouvelle);
 						if (pathNouvelle != null) {
-							dictionnaire.get(libelle).setImageAssocieAuMot(definitionNouvelle);
+							dictionnaire.get(libelle).setImageAssocieAuMot(pathNouvelle);
 						}
 					}
 				}
@@ -736,6 +751,11 @@ public class ControllerDictionaire implements Initializable {
 				buttonAnnuler.setDisable(false);
 			}
 		});
+		
+		this.listeDesMotsAffiches.addListener(
+				(ListChangeListener.Change<? extends String> c) -> {
+					buttonAjouter.setDisable(!motPeutEtreAjoute(this.champRecherche.getText()));
+		});
 
 	 }
 	 
@@ -743,10 +763,12 @@ public class ControllerDictionaire implements Initializable {
 			listViewMots.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 				@Override
 				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-					buttonEffacer.setDisable(newValue != null);
 					if (listViewMots.isFocused() && newValue != null) {
+						buttonEffacer.setDisable(false);
 						demanderDAfficher(dictionnaire.get(newValue));
 						buttonEffacer.setDisable(false);
+					} else {
+						buttonEffacer.setDisable(true);
 					}
 				}
 			});
