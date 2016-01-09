@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.function.Predicate;
 
 /**
- * Classe interne qui gère le filtre par date.
+ * Classe qui gère le filtre par date.
  * @author François Lefebvre et Adrian Pinzaru
  *
  */
@@ -43,7 +43,7 @@ public class FiltreParDate implements Predicate<Mot>{
 		this.date = date;
 	}
 	
-	/*
+	/**
 	 * Vérifie la validité du mot selon la date.
 	 */
 	@Override
@@ -111,19 +111,35 @@ public class FiltreParDate implements Predicate<Mot>{
 		
 		return s;
 	}
-
+	
+	/**
+	 * Retourne la date du filtre
+	 * @return
+	 */
 	public LocalDate getDate() {
 		return this.date;
 	}
-
+	
+	/**
+	 * Retourne le type de date utilisé.
+	 * @return
+	 */
 	public FILTRE_PAR_DATE_DE getTypeDate() {
 		return this.typeDeFiltre;
 	}
-
+	
+	/**
+	 * Retourne la manière dont est filtrée la date.
+	 * @return
+	 */
 	public MOMENT_PAR_RAPPORT_A_DATE getMoment() {
 		return this.moment;
 	}
-
+	
+	/**
+	 * Retourne le filtre par date par défaut.
+	 * @return
+	 */
 	public static FiltreParDate getDefault() {
 		return new FiltreParDate(
 				MOMENT_PAR_RAPPORT_A_DATE.APRES,

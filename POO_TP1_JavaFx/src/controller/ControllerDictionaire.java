@@ -2,12 +2,9 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
-import vue.ParametresAffichage;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -46,9 +43,11 @@ import model.FiltreDeRecherche;
 import model.FiltreParDate;
 import model.Mot;
 import vue.ModifiableByDragListCell;
+import vue.ParametresAffichage;
 
 /**
  * Contolleur principal de l'application Dictionnaire.
+ * </br></br>
  * (Classe beaucoup trop grande qui mériterait d'être
  * divisée en plusieurs contrôleurs secondaires.)
  * @author François Lefebvre & Adrian Pinzaru
@@ -256,7 +255,7 @@ public class ControllerDictionaire implements Initializable {
 						"."
 				);
 		afficherDefinition(mot.getDefinition());
-		imageController.setImage(mot.getNomFichier(), false);
+		imageController.demanderSetImage(mot.getNomFichier(), false);
 	 }
 	
 	/**
@@ -508,7 +507,6 @@ public class ControllerDictionaire implements Initializable {
 		filtreStage.show();
 		ControllerFiltreFenetre controleurFiltre = 
 				(ControllerFiltreFenetre) fxmlLoader.getController();
-		controleurFiltre.setFenetre(filtreStage);
 		controleurFiltre.setValeurSelonFiltre(this.parametresDeRecherche);
 		return controleurFiltre;
 	}
@@ -560,16 +558,11 @@ public class ControllerDictionaire implements Initializable {
 			}
 		}
 	} 
-
 	
-	
-	
-	
-	
-    
-    
-    //*************************************
-
+	/**
+	 * Définie le comportement de la zone définition lors de la
+	 * détection d'un événement drag et drop.
+	 */
 	private void setDraggableDefinition() {
 		this.textAreaDifinition.setOnDragDetected(e -> {
 			Dragboard db = ((TextArea) e.getSource()).startDragAndDrop(TransferMode.COPY);
@@ -577,9 +570,12 @@ public class ControllerDictionaire implements Initializable {
 			cbc.put(ModifiableByDragListCell.DEFINITION, this.textAreaDifinition.getText());
 			db.setContent(cbc);
 		});
-		
 	}
-
+	
+	/**
+	 * Définie la Cell Factory associée à la listView. Y associe un observateur
+	 * qui gère les données acquises lors d'un drag et drop.
+	 */
 	private void setListViewModifiableAvecDrag() {
 		setDraggableDefinition();
 		listViewMots.setCellFactory(listViewMots -> {
@@ -626,27 +622,31 @@ public class ControllerDictionaire implements Initializable {
 				}
 			});
 		});
-		
 	}
-
-
 	
-
-	
+	/**
+	 * Définie une série d'observateurs pour différents éléments.
+	 */
 	 private void setListenersAndEventHandlers() {
 		listViewMots.setItems(listeDesMotsAffiches);
+		
 		lierSelectionMotEtAffichage();
+		
 		setOnChangeTexteChampDeRecherche();
+		
 		dansLeMotChBox.setOnAction((e) -> {
 			 this.parametresDeRecherche.rechercheDansContenuDemandeProperty().set(dansLeMotChBox.isSelected());
 			 lancerRechercheOuverte();
 		 });
+		
 		setOnDisablePropertyChangePourDansLeMotChexbox();
+		
 		listViewMots.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
 			listViewMots.requestFocus();
 			listViewMots.getSelectionModel().select(-1);
 			});
-		this.textFieldAffichageMot.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
+		
+		textFieldAffichageMot.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
 			if (!nouvelleValeurDeFocus) {
 				this.textFieldAffichageMot.setEditable(false);
 				if (dictionnaireAEteModifie()) {
@@ -655,7 +655,8 @@ public class ControllerDictionaire implements Initializable {
 				}
 			}
 		});
-		this.textAreaDifinition.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
+		
+		textAreaDifinition.focusedProperty().addListener((obs, o, nouvelleValeurDeFocus) -> {
 			if (!nouvelleValeurDeFocus) {
 				this.textAreaDifinition.setEditable(false);
 				afficherDefinition(this.textAreaDifinition.getText().trim());
@@ -666,18 +667,14 @@ public class ControllerDictionaire implements Initializable {
 			}
 		});
 		
-		this.textFieldAffichageMot.setOnAction(e -> this.sectionDefinition.requestFocus());
+		textFieldAffichageMot.setOnAction(e -> this.sectionDefinition.requestFocus());
 		
-		this.textAreaDifinition.setOnKeyPressed(e -> {
+		textAreaDifinition.setOnKeyPressed(e -> {
 			if (e.getCode() == KeyCode.ENTER) {
 				this.sectionDefinition.requestFocus();
 				e.consume();
 			}
 		});
-		
-//		this.imageController.addObserver((observable, args) -> {
-//			this.dernierMotAffiche.setImageAssocieAuMot((String) args); 
-//		});
 		
 		this.imageController.imageAChangeProperty().addListener((obs, old, ne) -> {
 			if (ne) {
@@ -693,6 +690,9 @@ public class ControllerDictionaire implements Initializable {
 
 	 }
 	 
+	 /**
+	  * Lie l'affichage au mot sélectionné dans la ListView.
+	  */
 	 private void lierSelectionMotEtAffichage() {
 			listViewMots.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 				@Override
@@ -707,7 +707,11 @@ public class ControllerDictionaire implements Initializable {
 				}
 			});
 		}
-	 
+	
+	 /**
+	  * Définie l'action à prendre à chaque modification du champ de
+	  * recherche.
+	  */
 	private void setOnChangeTexteChampDeRecherche() {
 		 champRecherche.textProperty().addListener((obs, old, ne)->{
 				buttonAjouter.setDisable(!motPeutEtreAjoute(ne));
@@ -715,12 +719,22 @@ public class ControllerDictionaire implements Initializable {
 				});
 	}
 	 
+	/**
+	 * Vérifie si le mot peut être ajouté au dictionnaire.
+	 * @param expression libelle du mot
+	 * @return boolean
+	 */
 	 private boolean motPeutEtreAjoute(String expression) {
 		return !this.champRecherche.getText().isEmpty() &&
 				!this.dansLeMotChBox.isSelected() &&
 				!expressionExacteExisteDansDictionnaire(expression);
 	}
 	 
+	 /**
+	  * Vérifie si l'expression existe ans le dictionnaire.
+	  * @param expressionDuChamp Libellé du mot.
+	  * @return boolean
+	  */
    private boolean expressionExacteExisteDansDictionnaire(String expressionDuChamp) {
 		if (dictionnaire != null) { 
 			return dictionnaire.containsKey(expressionDuChamp.toLowerCase());
@@ -728,7 +742,11 @@ public class ControllerDictionaire implements Initializable {
 			return false;
 		}
 	 }
-
+   
+   /**
+    * Gère le changement de propriété de sélection du checkbox pour 
+    * la recherche dans le mot.
+    */
 	private void setOnDisablePropertyChangePourDansLeMotChexbox() {
 		 this.dansLeMotChBox.disabledProperty().addListener((obs, o, newBooleanValue) -> {
 				if (newBooleanValue == false) {
@@ -738,7 +756,10 @@ public class ControllerDictionaire implements Initializable {
 				}
 			});
 	}
-
+	
+	/**
+	 * Définie un ensemble de bindings.
+	 */
 	private void setBindings() {
 		gererAutomatiquementLaLargeurDeLaLegendeDuFiltre();
 		 parametresDeRecherche.expressionProperty().bind(
@@ -747,13 +768,22 @@ public class ControllerDictionaire implements Initializable {
 				parametresDeRecherche.recherchePermiseDansContenuProperty().not()
 				);
 	}
-
+	
+	/**
+	 * Permet d'ajuster de manière dynamique la largeur de la zone d'affichage
+	 * des paramètres de filtre (Classe Text). La classe Text a été utilisée
+	 * car elle permet de wrapper le texte tout en lui définissant une couleur.
+	 */
 	private void gererAutomatiquementLaLargeurDeLaLegendeDuFiltre() {
 			definitionFiltreText.wrappingWidthProperty().bind(
 					((Pane) definitionFiltreText.getParent()).widthProperty().subtract(20));
 	}
     
-
+	/**
+	 * Définie les paramètres d'affichage selon le mode dans lequel se trouve
+	 * l'application.
+	 * @param mode Mode de l'application.
+	 */
 	private void setMode(MODE mode) {
 		
 		switch (mode) {
@@ -773,67 +803,39 @@ public class ControllerDictionaire implements Initializable {
 		}
 	}
 	
+	/**
+	 * Définie si la recherche est permise.
+	 * @param b
+	 */
     private void setRecherchePermise(boolean b) {
 		this.recherchePermise = b;
 	}
     
+    /**
+     * Retourne vrai si la recherche est permise. Faux autrement.
+     * @return
+     */
 	private boolean recherchePermise() {
 		return this.recherchePermise;
 	}
 	
+	/**
+	 * Définie les propriétés d'affichage de départ non prises en charge
+	 * dans le fxml.
+	 */
 	private void finaliserLAffichageDeDepart() {
 		buttonAjouter.setDisable(true);
 		buttonEffacer.setDisable(true);
 		afficherDefinitionFiltre();
 		sectionDefinition.setVisible(false);
 	}
-
-
-
-
 	
-
-       
-   
-    
-   
-	
-   
-	
-
-	
-    
-
-
-	
-
-	
-	
-	
-
-	
-	
-	
-       
+	/**
+	 * Gère le menu fermer pour fermer l'application.
+	 * @param event
+	 */
     @FXML
     void fermerApplication(ActionEvent event) {
     	Platform.exit();
     }
-
-    @FXML
-    void gererExpressionDansMotChBox(ActionEvent event) {
-
-    }
-
-    @FXML
-    void rechercherAChaqueLettre(ActionEvent event) {
-
-    }
-
-    @FXML
-    void rechercherLeMotComplet(ActionEvent event) {
-
-    }
-
 }
-

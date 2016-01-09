@@ -1,15 +1,10 @@
 package model;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import model.FiltreParDate.FILTRE_PAR_DATE_DE;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,12 +13,16 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
 /**
- * Classe qui gère le filtre des mots lors de la recherche
+ * Classe qui gère le filtre des mots lors de la recherche.
+ * L'expressioni de recherche accepte les joker "*" et "?" pour remplacer un groupe
+ * de caractères ou un seul caractère respectivement.
+ * Après la construction, utiliser les méthodes appropriées pour ajouter
+ * un filtre de date et le filtre par image.
+ * Plusieurs attributs sont gérés automatiquement par binding.
  * @author François Lefebvre et Adrian Pinzaru
  *
  */
 public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot> {
-	
 	private boolean filtreParDateActif;
 	private boolean chercherDansLeContenuEffectif;
 	private boolean doitContenirUneImage;
@@ -34,17 +33,14 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 	private BooleanProperty recherchePermiseDansContenu = new SimpleBooleanProperty();
 	private BooleanProperty rechercheOuverte = new SimpleBooleanProperty();
 	
+	/**
+	 * Nombre minimal de caractère dans l'expression de recherche pour 
+	 * la recherche dans le contenu
+	 */
 	public static final int MIN_CHAR_RECH_CONTENU = 3;
 	
 	/**
-	 * Constructeur. Accepte les joker "*" et "?" pour remplacer un groupe
-	 * de caractères ou un seul caractère respectivement.
-	 * Après la construction, utiliser les méthodes appropriées pour ajouter
-	 * un filtre de date et le filtre par image.
-	 * @param chaine Chaîne de caractères du champ de saisie
-	 * @param chercherDansLeContenuDuMot Indication si on peut chercher dans
-	 * le contenu du mot ou seulement à partir du début.
-	 * @throws Exception 
+	 * Constructeur. 
 	 */
 	public FiltreDeRecherche () {
 		this.filtreParDate = FiltreParDate.getDefault();
@@ -54,24 +50,141 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 		this.rechercheDansLeContenuDemande.set(false);
 		this.rechercheOuverte.set(false);
 		
+		// Permet la mise à jour de l'expression rationnelle (regex)
 		this.expressionDeDepart.addListener(this);
 		this.rechercheDansLeContenuDemande.addListener(this);
 		this.rechercheOuverte.addListener(this);
 		
+		// Recherche dans le contenu seulement si l'expression
+		// est de taille supérieure à 3.
 		recherchePermiseDansContenu.bind(
 				expressionDeDepart.length().greaterThanOrEqualTo(
 						MIN_CHAR_RECH_CONTENU
 						)
 				);
-//		expressionDeDepart.addListener((obs, old, n) -> {
-//			if (n.length() >= MIN_CHAR_RECH_CONTENU) {
-//				recherchePermiseDansContenu.set(true);
-//			} else {
-//				recherchePermiseDansContenu.set(false);
-//			}
-//		});
 	}
 	
+	/**
+	 * Retourne le BooleanProperty lié à la possibilité de faire une recherche
+	 * dans le contenu.
+	 * @return
+	 */
+	public BooleanProperty recherchePermiseDansContenuProperty() {
+		return recherchePermiseDansContenu;
+	}
+	
+	/**
+	 * Retourne l'expression textuelle du filtre.
+	 * @return
+	 */
+	public String getExpression() {
+		return this.expressionDeDepart.get();
+	}
+	
+	/**
+	 * Définie si le filtre par date est considéré dans la recherche.
+	 * @param valeur Valeur d'activation
+	 */
+	public void setFiltreParDateActif(boolean valeur) {
+		this.filtreParDateActif = valeur;
+	}
+	
+	/**
+	 * Retourne l'état d'activité du filtre par date.
+	 * @return
+	 */
+	public boolean filtreParDateEstActif() {
+		return this.filtreParDateActif;
+	}
+	
+	/**
+	 * Ajoute un filtre pour conserver seulement les mot qui contiennent 
+	 * une image.
+	 * @param doit Indication si le mot doit contenir une image (true/false)
+	 */
+	public void setDoitContenirImage(boolean doit) {
+		this.doitContenirUneImage = doit;
+	}
+	
+	/**
+	 * Retourne l'information si les résultats de recherche doivent contenir
+	 * une image.
+	 * @return
+	 */
+	public boolean getDoitContenirImage() {
+		return this.doitContenirUneImage;
+	}
+	
+	/**
+	 * Retourne le BooleanProperty en lien avec la demande de l'utilisateur
+	 * quant à la recherche dans le contenu.
+	 * @return
+	 */
+	public BooleanProperty rechercheDansContenuDemandeProperty() {
+		return this.rechercheDansLeContenuDemande;
+	}
+	
+	/**
+	 * Retourne l'expression régulière générée sous forme de chaîne de caractères
+	 * @return
+	 */
+	public String getRegex() {
+		return regex.pattern();
+	}
+	
+	/**
+	 * Définie la valeur pour une recherche ouverte (recherche par préfixe)
+	 * @param b
+	 */
+	public void setRechercheOuverte(boolean b) {
+		this.rechercheOuverte.set(b);
+	}
+	
+	/**
+	 * Retourne la propriété de l'expression.
+	 * @return
+	 */
+	public StringProperty expressionProperty() {
+		return this.expressionDeDepart;
+	}
+	
+	/**
+	 * Retourne si la recherche se fait dans le contenu au final.
+	 * Peut ne pas être la même que ce qui est demandé par l'utilisateur.
+	 * @return
+	 */
+	public boolean rechercheDansLeContenuEffectif() {
+		return this.chercherDansLeContenuEffectif;
+	}
+	
+	/**
+	 * Retourne le filtre par date
+	 * @return
+	 */
+	public FiltreParDate getFiltreParDate() {
+		return this.filtreParDate;
+	}
+	
+	/**
+	 * Définie le filtre par date.
+	 * @param filtreParDate
+	 */
+	public void setFiltreParDate(FiltreParDate filtreParDate) {
+		this.filtreParDate = filtreParDate;
+	}
+	
+	/**
+	 * Retourne la valeur de recherche dans le contenu tel que demandé par
+	 * l'utilisateur.
+	 * @return
+	 */
+	public boolean demandeRechercheDansContenu() {
+		return this.rechercheDansLeContenuDemande.get();
+	}
+	
+	/**
+	 * Met a jour l'expression rationnelle selon les données du filtre.
+	 */
 	public void updateRegex() {
 		
 		String expression = this.expressionDeDepart.get().toLowerCase() + 
@@ -91,43 +204,18 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 		}
 	}
 	
-	public BooleanProperty recherchePermiseDansContenuProperty() {
-		return recherchePermiseDansContenu;
-	}
-	
-	public String getExpression() {
-		return this.expressionDeDepart.get();
-	}
-	
 	/**
-	 * Ajoute un filtre de date au filtre.
-	 * @param filtreDate Filtre de date.
+	 * Transforme une expression contenant des jokers en expression rationnelle.
+	 * @param wcString Expression contenant les jokers.
+	 * @return Expression rationnelle.
 	 */
-//	public void addFiltreParDate(FiltreParDate filtreDate) {
-//		this.filtreParDate = filtreDate;
-//	}
-	
-	public void setFiltreParDateActif(boolean valeur) {
-		this.filtreParDateActif = valeur;
+	private String convertWildcardsToRegex(String wcString) {
+		String regex = wcString;
+		regex = regex.replace("*", ".*");
+		regex = regex.replace("?", ".");
+		return regex;
 	}
-	
-	public boolean filtreParDateEstActif() {
-		return this.filtreParDateActif;
-	}
-	
-	
-	/**
-	 * Ajoute un filtre pour conserver seulement les 
-	 * @param doit indication si le mot doit contenir une image.
-	 */
-	public void setDoitContenirImage(boolean doit) {
-		this.doitContenirUneImage = doit;
-	}
-	
-	public boolean getDoitContenirImage() {
-		return this.doitContenirUneImage;
-	}
-	
+
 	/**
 	 * Vérifie le mot.
 	 */
@@ -146,7 +234,6 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 	}
 	
 	/**
-	 * 
 	 * Valide en fonction de la présence de l'image.
 	 * @param mot Mot à vérifier.
 	 * @return True si valide.
@@ -180,15 +267,49 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 	}
 	
 	/**
-	 * Transforme une expression contenant des jokers en expression régulière.
-	 * @param wcString Expression contenant les jokers.
-	 * @return Expression régulière.
+	 * Vérifie si le filtre est inutile dans les faits.
+	 * @return
 	 */
-	private String convertWildcardsToRegex(String wcString) {
-		String regex = wcString;
-		regex = regex.replace("*", ".*");
-		regex = regex.replace("?", ".");
-		return regex;
+	public boolean estNull() {
+		return (this.expressionDeDepart.get().isEmpty() ||
+				this.expressionDeDepart.get().equals("*") 
+				) && 
+				!this.hasFiltreParDateOuParImage();
+	}
+	
+	/**
+	 * Retourne si le filtre a un filtre par date ou par image ou seulement
+	 * selon une expression.
+	 * @return
+	 */
+	public boolean hasFiltreParDateOuParImage() {
+		return this.doitContenirUneImage || this.filtreParDateEstActif();
+	}
+	
+	/**
+	 * Vérifie si une chaîne de caractères possède des jokers pris en compte
+	 * par le filtre.
+	 * @param text Expression à évaluer
+	 * @return
+	 */
+	public static boolean contientDesJokers(String text) {
+		return text.contains("*") || text.contains("?");
+	}
+	
+	/**
+	 * Vérifie si le filtre fait sa recherche par mot exacte ou pas.
+	 * @return
+	 */
+	public boolean rechercheLeMotExacte() {
+		return !this.rechercheDansLeContenuEffectif() && !this.getExpression().isEmpty();
+	}
+
+	/**
+	 * Retourne la valeur si la recherche dans le contenu est possible.
+	 * @return
+	 */
+	public boolean validePourLaRechercheDansLeContenu() {
+		return this.recherchePermiseDansContenu.get();
 	}
 	
 	public String toString() {
@@ -199,25 +320,10 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 		}
 	}
 	
-	public boolean estNull() {
-		return (this.expressionDeDepart.get().isEmpty() ||
-				this.expressionDeDepart.get().equals("*") 
-				) && 
-				!this.hasFiltreParDateOuParImage();
-	}
-	
-	public static FiltreDeRecherche getDefault() {
-		return new FiltreDeRecherche();
-	}
-
-	public boolean rechercheDansLeContenu() {
-		return this.chercherDansLeContenuEffectif;
-	}
-
-	public boolean hasFiltreParDateOuParImage() {
-		return this.doitContenirUneImage || this.filtreParDateEstActif();
-	}
-
+	/**
+	 * Retourne la définition du filtre.
+	 * @return
+	 */
 	public String getDefinition() {
 		List<String> filtres = new ArrayList<>();
 			
@@ -246,58 +352,21 @@ public class FiltreDeRecherche implements ChangeListener<Object>, Predicate<Mot>
 
 		return filtreString;
 	}
-
-	public FiltreParDate getFiltreParDate() {
-		return this.filtreParDate;
-	}
-
-	public void setFiltreParDate(FiltreParDate filtreParDate) {
-		this.filtreParDate = filtreParDate;
-	}
-
-	public boolean demandeRechercheDansContenu() {
-		return this.rechercheDansLeContenuDemande.get();
-	}
 	
-	public static boolean contientDesJokers(String text) {
-		return text.contains("*") || text.contains("?");
-	}
-	
-	public boolean rechercheLeMotExacte() {
-		return !this.rechercheDansLeContenu() && !this.getExpression().isEmpty();
-	}
-
-	public boolean validePourLaRecherche() {
-		return this.recherchePermiseDansContenu.get();
-	}
-
-//	public void setExpression(String expression) {
-//		this.expressionDeDepart.set(expression);
-//	}
-//
-//	public void setRechercheDansLeContenu(Boolean b) {
-//		this.rechercheDansLeContenuDemande.set(b);
-//	}
-//	
-	public void setRechercheOuverte(boolean b) {
-		this.rechercheOuverte.set(b);
-	}
-	
-	public StringProperty expressionProperty() {
-		return this.expressionDeDepart;
-	}
-
+	/**
+	 * Méthode de l'interface ChangeListener
+	 */
 	@Override
 	public void changed(ObservableValue observable, Object oldValue,
 			Object newValue) {
 		updateRegex();
 	}
-	
-	public BooleanProperty rechercheDansContenuDemandeProperty() {
-		return this.rechercheDansLeContenuDemande;
-	}
 
-	public String getRegex() {
-		return regex.pattern();
+	/**
+	 * Retourne le filtre de recherche par défaut.
+	 * @return
+	 */
+	public static FiltreDeRecherche getDefault() {
+		return new FiltreDeRecherche();
 	}
 }

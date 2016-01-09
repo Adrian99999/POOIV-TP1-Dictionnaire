@@ -17,7 +17,7 @@
             </Label>
             <HBox prefHeight="53.0" prefWidth="571.0" spacing="10.0">
                <children>
-                  <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" onAction="#gererFiltreDateChBox" prefHeight="18.0" prefWidth="59.0" text="Date" />
+                  <CheckBox fx:id="filtreDateChBox" mnemonicParsing="false" prefHeight="18.0" prefWidth="59.0" text="Date" />
                   <ComboBox fx:id="typeDateComBox" prefHeight="26.0" prefWidth="129.0" promptText="Mot modifié" />
                   <ComboBox fx:id="typeFiltreDateComBox" prefHeight="26.0" prefWidth="109.0" promptText="avant le" />
                   <DatePicker fx:id="dateFiltrePicker" />

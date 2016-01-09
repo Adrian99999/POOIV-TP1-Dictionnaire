@@ -4,11 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.util.Properties;
 /**
- * Classe qui fabrique les mots et le diactionaire
- * @author Adrian Pinzaru
+ * Classe qui fabrique les mots et le dictionnaire.
+ * @author François Lefebvre & Adrian Pinzaru
  *
  */
 public class FabriqueMotSingleton 
@@ -18,15 +17,16 @@ public class FabriqueMotSingleton
 	private Properties properties = new Properties();
 	
 	/**
-	 * Constructeur de la classe, execut la lecture du fichier proprietes.xml et cree le dictionaire;
+	 * Constructeur de la classe, exécute la lecture du fichier proprietes.xml et crée le dictionnaire.
 	 */
 	protected FabriqueMotSingleton()
 	{
 		lireProprietes();
 		creerDictionaire();
 	}
+	
 	/**
-	 * Méthode qui retourne l'instance de la classe
+	 * Retourne le singleton de la classe.
 	 * @return instance de la classe FabriqueMotSingleton
 	 */
 	public static FabriqueMotSingleton getInstance()
@@ -39,7 +39,7 @@ public class FabriqueMotSingleton
 	}
 	
 	/**
-	 * Méthode qui lit le fichier de configuration
+	 * Lit le fichier de configuration
 	 */
 	private void lireProprietes()
 	{
@@ -54,16 +54,12 @@ public class FabriqueMotSingleton
 	}
 	
 	/**
-	 * Méthode qui crée le dictionaire, remplit la Map
+	 * Crée le dictionnaire
 	 */
 	private void creerDictionaire()
 	{
 		dictionnaire = new Dictionnaire(properties.getProperty("max.mots"));
-		
-		
-//		new Thread(() -> {
 			BufferedReader br = null;
-			
 			
 			try {
 				String line = null;
@@ -75,7 +71,6 @@ public class FabriqueMotSingleton
 				
 				while((line = br.readLine()) != null)
 				{
-//					System.out.println(line);
 					dictionnaire.ajouter(new Mot(line));
 				}
 				
@@ -84,10 +79,12 @@ public class FabriqueMotSingleton
 			} catch ( IOException e) {
 				e.printStackTrace();
 			}
-//		}).start();;
 	}
 
-
+	/**
+	 * Renvoi le dictionnaire.
+	 * @return
+	 */
 	public Dictionnaire getDictionnaire() {
 		return dictionnaire;
 	}
