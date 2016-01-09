@@ -22,7 +22,7 @@
                   <TextField fx:id="champRecherche" onKeyReleased="#gererTouchesDuChampDeRecherche" opacity="0.85" />
                   <VBox id="zoneOptions" styleClass="zoneOmbragee">
                      <children>
-                        <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" onAction="#gererExpressionDansMotChBox" text="Expression dans le mot" />
+                        <CheckBox fx:id="dansLeMotChBox" mnemonicParsing="false" text="Expression dans le mot" />
                         <Hyperlink onAction="#gererFiltreHyperlink" text="Filtre" />
                         <Text id="filtreDefinition" fx:id="definitionFiltreText" strokeType="OUTSIDE" strokeWidth="0.0" text="Définition du filtre du filtre sdfsdf  sdf  sdf sd f sd f" />
                      </children>
